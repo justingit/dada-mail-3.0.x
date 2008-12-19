@@ -909,7 +909,7 @@ sub list_option_form {
 		my $email;
 		my $count = 0; 
 		my $test = 0;
-		   $test = $DADA::Config::SHOW_DOMAIN_TABLE + $DADA::Config::SHOW_SERVICES_TABLE + $DADA::Config::SHOW_EMAIL_LIST; 
+		   $test = $DADA::Config::SHOW_DOMAIN_TABLE + $DADA::Config::SHOW_SERVICES_TABLE; 
 		   
 		unless ($test == 0){
 		
@@ -923,10 +923,6 @@ sub list_option_form {
 			while(defined($email = <LIST>)){ 
 			
 				chomp($email);
-				
-				if($DADA::Config::SHOW_EMAIL_LIST ==1){
-					print "<option value=",$email,">",$email,"</option>\n";
-				}
                 
                 # this is the 'Show Domains' Hash Generator
 				
