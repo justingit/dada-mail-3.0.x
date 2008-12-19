@@ -2179,25 +2179,8 @@ through the list control panel.
 
 $MAILOUT_STALE_AFTER  ||= 86400;
 
-=pod
-
-=head2 $SHOW_EMAIL_LIST
-
-Customize the "View List" Screen in the Administration Area:
-You can turn off and on many of the features in the "View List" 
-administration area. If lists get really large, it may take some 
-time for this page to load...and some people have reported that the 
-screen won't load at all. The main reason for this is the scroll 
-box that holds a list of all the subscribed people. Not only does 
-it take time to sort through the list in alphabetical order and 
-then print all the addresses out, it's also a huge burden for the 
-browser to render a select box that large. It's not much help 
-anyways to have a select box holding 10,000 email addresses. You 
-can stop this select box from being shown by editing the below 
-variable to '0'.
-
-=cut
-
+# This variable isn't actually used and is only here so scripts relying on it, 
+# don't break. 
 $SHOW_EMAIL_LIST ||= 1;
 
 =pod

@@ -1312,52 +1312,57 @@ sub unsub_confirm {
         
         
 		
-        if(
-            $li->{black_list}               == 1 && 
-            $li->{add_unsubs_to_black_list} == 1
+        
+			        require DADA::App::Messages; 
+			        DADA::App::Messages::send_owner_happenings(
+						{
+							-list  => $list, 
+							-email => $email, 
+							-role  => "unsubscribed",
+							-test  => $self->test,
+						}
+					);
 
-        ){
 
-			
-			# Basically, what I gotta do is make sure that there aren't on the 
-			# Blacklist ALREADY, or Baaaaaaad things happen. 
-			
-            # We move, in an attempt to keep the subscription information
-            # Perhaps, they'll be moved back?
-            
-            warn 'Moving email (' . $email .') to blacklist.' 
-                if $t; 
-                
-            $lh->move_subscriber(
-            
-                {
-                    -email => $email,  
-                    -from  => 'list',
-                    -to    => 'black_list',
-					-mode  => 'writeover', 
-                }
-            );
-        
-        }
-        else { 
-                        
-            $lh->remove_from_list(
-                -Email_List =>[$email], 
-                -Type       => 'list'
-            );
-        
-        }
-        
-        require DADA::App::Messages; 
-        DADA::App::Messages::send_owner_happenings(
-			{
-				-list  => $list, 
-				-email => $email, 
-				-role  => "unsubscribed",
-				-test  => $self->test,
-			}
-		);
-        
+
+
+			if(
+			            $li->{black_list}               == 1 && 
+			            $li->{add_unsubs_to_black_list} == 1
+
+			        ){
+
+
+						# Basically, what I gotta do is make sure that there aren't on the 
+						# Blacklist ALREADY, or Baaaaaaad things happen. 
+
+			            # We move, in an attempt to keep the subscription information
+			            # Perhaps, they'll be moved back?
+
+			            warn 'Moving email (' . $email .') to blacklist.' 
+			                if $t; 
+
+			            $lh->move_subscriber(
+
+			                {
+			                    -email => $email,  
+			                    -from  => 'list',
+			                    -to    => 'black_list',
+								-mode  => 'writeover', 
+			                }
+			            );
+
+			        }
+			        else { 
+
+			            $lh->remove_from_list(
+			                -Email_List =>[$email], 
+			                -Type       => 'list'
+			            );
+
+			        }
+
+
         if($li->{send_unsub_success_email} == 1){ 
 	
             require DADA::App::Messages; 
