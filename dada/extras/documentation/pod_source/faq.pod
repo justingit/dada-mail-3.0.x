@@ -1065,7 +1065,7 @@ And run it as a cron job.
 
 See the Mail Sending FAQ at: 
 
-L<http://dadamailproject.com/support/documentation/email_sending.pod.html>
+L<http://dadamailproject.com/support/documentation/FAQ-email_sending.pod.html>
 
 =head1 Archiving
 
