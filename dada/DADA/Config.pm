@@ -4311,8 +4311,8 @@ and to say that you've got the freshest tools on the Web.
 
 
 
-$VERSION = 3.0.1; 
-$VER     = '3.0.1';
+$VERSION = 3.0.2; 
+$VER     = '3.0.2 pre';
 
 #
 #
