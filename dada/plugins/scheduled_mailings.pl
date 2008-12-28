@@ -531,9 +531,17 @@ sub edit  {
 
 
 sub test_handler { 
-	my %args = (-key => '', @_); 
-	die "no key! $!" if ! $args{-key}; 
-	my ($status, $cs) = $mss->send_scheduled_mailing(-key => $args{-key}, -test => 1);
+	my %args = (
+			-key => '', 
+			@_
+		); 
+	if (! $args{-key}){
+		die "no key! $!"; 
+	}
+	my ($status, $cs) = $mss->send_scheduled_mailing(
+							-key  => $args{-key}, 
+							-test => 1
+						);
 	return $status; 
 }
 
@@ -578,6 +586,9 @@ sub save {
 	 $form_vals{message_name}                 = $q->param('message_name'); 
 	 $form_vals{active}         	          = $q->param('active')                  || 0; 
 	 $form_vals{mailing_date}       		  = mailing_date(); 
+	
+#	 die scalar localtime($form_vals{mailing_date});
+	
 	 $form_vals{repeat_mailing} 			  = $q->param('repeat_mailing')          || 0; 
 	 $form_vals{repeat_times} 			      = $q->param('repeat_times')            || 0; 
 	 $form_vals{repeat_number}        		  = $q->param('repeat_number'); 
@@ -717,46 +728,50 @@ sub remove {
 
 
 
-sub mailing_date { 
-	
-	my $min        = $q->param('mail_minute') || undef; 
-	my $hour       = $q->param('mail_hour')   || undef; 
-	my $mday       = $q->param('mail_day')    || undef; 
-	my $mon        = $q->param('mail_month')  || undef; 
-	my $year       = $q->param('mail_year')   || undef; 
-	my $mail_am_pm = $q->param('mail_am_pm')  || undef; 
-	if(
-		defined($min)         && 
-		defined($hour)        && 		
-		defined($mday)        && 		
-		defined($mon)         && 		
-		defined($year)        &&
-		defined($mail_am_pm) 
-	){ 
+sub mailing_date {
 
-		# This is a little hacky... 
-		if($mail_am_pm eq 'pm'){
-			# But - if the hour is, "12" 
-			# 12 + 12 is, "24" - not, "0' and not just, "12"
-			if($hour != 12){  
-				$hour += 12; 
-			}
-		}
-		elsif($mail_am_pm eq 'am'){
-			if($hour == 12){ 
-				$hour = 0; 
-			}	
-		}
+    my $min        = $q->param('mail_minute') || 0;
+    my $hour       = $q->param('mail_hour')   || 0;
+    my $mday       = $q->param('mail_day')    || 1;
+    my $mon        = $q->param('mail_month')  || 0;
+    my $year       = $q->param('mail_year')   || 0;
+    my $mail_am_pm = $q->param('mail_am_pm')  || 'am';
 
-		$min = int($min) ;
-		require Time::Local; 
-		my $time = Time::Local::timelocal(0,$min,$hour,$mday,$mon,$year);	
-		return $time; 
-	}
-	else { 
-		return time; 
-	}
+    #if(
+    #	defined($min)         &&
+    #	defined($hour)        &&
+    #	defined($mday)        &&
+    #	defined($mon)         &&
+    #	defined($year)        &&
+    #	defined($mail_am_pm)
+    #){
+
+    # This is a little hacky...
+    if ( $mail_am_pm eq 'pm' ) {
+
+        # But - if the hour is, "12"
+        # 12 + 12 is, "24" - not, "0' and not just, "12"
+        if ( $hour != 12 ) {
+            $hour += 12;
+        }
+    }
+    elsif ( $mail_am_pm eq 'am' ) {
+        if ( $hour == 12 ) {
+            $hour = 0;
+        }
+    }
+
+    $min = int($min);
+    require Time::Local;
+    my $time = Time::Local::timelocal( 0, $min, $hour, $mday, $mon, $year );
+    return $time;
+
+    #}
+    #else {
+    #	return time;
+    #}
 }
+
 
 
 
@@ -870,36 +885,63 @@ $r .= DADA::Template::Widgets::screen(
 
 
 	return $r; 
-} 
-	
-
-
-sub schedule_row { 
-	my $key = shift; 
-	my $r; 
-		
-	my $record = $mss->get_record($key);	
-	my $status = ""; 
-	my $mailing_schedule = $mss->mailing_schedule($key);
-		
-	my $row_style = 'background-color:#CCFFCC';
-	   $row_style = 'background-color:#FFFFFF' if (($record->{active} == 0) || (($mailing_schedule->[-1] < int(time))) && ($record->{repeat_number} ne 'indefinite') );	
-	   
-		 if($mailing_schedule->[-1] > int(time)){ 
-		 	if($record->{active} == 0){ 
-		 		$status =  $q->p({-class => 'smallred'},$q->i("This schedule is inactive.")); 
-		 	}else{
-		  		$status =  $q->p({-class => 'smallblack'},$q->i($mss->printable_date($mailing_schedule->[0]))); 
-		 	}
-		 }elsif($record->{repeat_number} eq 'indefinite'){ 
-		  	$status =  $q->p({-class => 'smallblack'},$q->i($mss->printable_date($mailing_schedule->[0]))); 
-		 }else{
-			$status =  $q->p({-class => 'smallred'},$q->i('This scheduled mailing has ended.')); 
-		 }  
-		
-	$r = "<tr style=\"$row_style\"><td><p><strong>" . edit_schedule_href($key, $record) . "</strong></p></td><td>$status</td><td>" . remove_schedule_form(-key   => $key, -label => '[x]') . "</td></tr>"; 
-	return $r; 
 }
+
+
+
+
+sub schedule_row {
+    my $key = shift;
+    my $r;
+
+    my $record           = $mss->get_record($key);
+    my $status           = "";
+    my $mailing_schedule = $mss->mailing_schedule($key);
+
+    my $row_style;
+    if (
+        $record->{active} == 0
+        || ( ( $mailing_schedule->[-1] < int(time) )
+            && $record->{repeat_number} ne 'indefinite' )
+      )
+    {
+
+        $row_style = 'background-color:#fff';
+    }
+    else {
+        $row_style = 'background-color:#cfc';
+    }
+
+    if ( $mailing_schedule->[-1] > int(time) ) {
+        if ( $record->{active} == 0 ) {
+            $status = $q->p( { -class => 'smallred' },
+                $q->i("This schedule is inactive.") );
+        }
+        else {
+            $status = $q->p( { -class => 'smallblack' },
+                $q->i( $mss->printable_date( $mailing_schedule->[0] ) ) );
+        }
+    }
+    elsif ($record->{repeat_mailing} == 1
+        && $record->{repeat_number} eq 'indefinite' )
+    {
+        $status = $q->p( { -class => 'smallblack' },
+            $q->i( $mss->printable_date( $mailing_schedule->[0] ) ) );
+    }
+    else {
+        $status = $q->p( { -class => 'smallred' },
+            $q->i('This scheduled mailing has ended.') );
+    }
+
+    $r =
+      "<tr style=\"$row_style\"><td><p><strong>"
+      . edit_schedule_href( $key, $record )
+      . "</strong></p></td><td>$status</td><td>"
+      . remove_schedule_form( -key => $key, -label => '[x]' )
+      . "</td></tr>";
+    return $r;
+}
+
 
 
 
@@ -1856,7 +1898,9 @@ sub single_attachment_widget {
 	      $q->p($q->textfield(
 	                           -name  => 'attachment_filename_'.$num, 
 				               -value => $att->{attachment_filename}, 
-				               -force => 1, ), 
+				               -force => 1, 
+							   -class => 'full', 
+							), 
 				               
 				               file_test($att->{attachment_filename})
 				 )
