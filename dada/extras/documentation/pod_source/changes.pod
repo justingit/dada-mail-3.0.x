@@ -51,6 +51,26 @@ https://sourceforge.net/tracker2/?func=detail&aid=2446770&group_id=13002&atid=11
 
 https://sourceforge.net/tracker2/?func=detail&aid=2432591&group_id=13002&atid=113002
 
+=item * 2368754  	 3.0.1 - CGI::Ajax module out of date
+
+https://sourceforge.net/tracker2/?func=detail&aid=2368754&group_id=13002&atid=113002
+
+=item * 2375488  	 3.0.0 - Control Panel - "test" option fails to work? 
+
+https://sourceforge.net/tracker2/?func=detail&aid=2375488&group_id=13002&atid=113002
+
+=item * 3.0.1 - messages bounced by Bluehost's qmail-send not parsed
+
+https://sourceforge.net/tracker2/?func=detail&aid=2381461&group_id=13002&atid=113002
+
+=item * 2409945  	 3.0.1 - Can't use an undefined value as a symbol reference
+
+https://sourceforge.net/tracker2/?func=detail&aid=2409945&group_id=13002&atid=113002
+
+=item * 3.0.1 - Mass Mailings broken because of faulty Reply-To?
+
+https://sourceforge.net/tracker2/?func=detail&aid=2415194&group_id=13002&atid=113002
+
 =back
 
 
