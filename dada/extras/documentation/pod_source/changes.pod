@@ -2,6 +2,60 @@
 
 =head1 Dada Mail Changelog for version 3.x.x
 
+=head1 3.0.2
+
+=head2 Download 3.0.2
+
+=over
+
+=item * tar.gz
+
+http://downloads.sourceforge.net/mojomail/dada-3_0_2.tar.gz?use_mirror=voxel
+
+=item * zip
+
+http://downloads.sourceforge.net/mojomail/dada-3_0_2.zip?use_mirror=voxel
+
+=back
+
+=head2 Changes 3.0.2
+
+This release focuses almost soley on bug fixes and ease of upgrading from previous versions, most especially, version 3.0.1 (the last stable release) and 3.0.0. This is similar to the 3.0.1 release and the same notes apply. 
+
+
+=head2 Bug Fixes 3.0.2
+
+=over
+
+=item * 2472382  	 3.0.1 - login form broken if all lists are hidden
+
+https://sourceforge.net/tracker2/?func=detail&aid=2472382&group_id=13002&atid=113002
+
+=item * 2473631  	 3.0.1 - Wrong date in schedules
+
+https://sourceforge.net/tracker2/?func=detail&aid=2473631&group_id=13002&atid=113002
+
+=item *  3.0.1 - wrong URL in docs - email_sending.pod.html
+
+https://sourceforge.net/tracker2/?func=detail&aid=2471846&group_id=13002&atid=113002
+
+=item * 2460735  	 3.0.1 - simple [tmpl_if ...] usage breaks sending
+
+https://sourceforge.net/tracker2/?func=detail&aid=2460735&group_id=13002&atid=113002
+
+=item * 2446770  	 3.0.1 - $SHOW_EMAIL_LIST Config variable does NOTHING
+
+https://sourceforge.net/tracker2/?func=detail&aid=2446770&group_id=13002&atid=113002
+
+=item * 2432591  	 3.0.1 - $MAILING_FINISHED_MESSAGE* vars not .dada_configable
+
+https://sourceforge.net/tracker2/?func=detail&aid=2432591&group_id=13002&atid=113002
+
+=back
+
+
+
+
 =head1 3.0.1
 
 =head2 Download 3.0.1
