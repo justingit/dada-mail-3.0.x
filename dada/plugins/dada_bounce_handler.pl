@@ -1537,7 +1537,7 @@ sub cgi_scorecard {
             # javascript_presubmit => 'last_minute_javascript()',
             
             
-            debug => 1,
+            #debug => 1,
         );
     
     }
