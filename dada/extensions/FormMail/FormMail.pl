@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl -wT
 #
 # NMS FormMail Version 3.14c1
 #
