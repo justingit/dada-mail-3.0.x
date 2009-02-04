@@ -1067,7 +1067,8 @@ sub mass_send {
 			   $DADA::Config::ARCHIVE_DB_TYPE    =~ m/SQL/ || 
 			   $DADA::Config::SETTINGS_DB_TYPE   =~ m/SQL/
 			 ){        
-			
+				
+				
 				require DBI; 
 				#sub MakeAllDBHsForkSafe {
 					if($DBI::VERSION >= 1.49){ 

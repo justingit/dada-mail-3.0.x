@@ -910,12 +910,12 @@ sub start {
 			foreach my $msgnum (sort { $a <=> $b } keys %$msgnums) {
 			
 			    $local_msg_viewed++;
-			    
+			    print "\t Message Size: " . $msgnums->{$msgnum} . "\n";
 			    if($msgnums->{$msgnum} > $Plugin_Config->{Max_Size_Of_Any_Message}){ 
 			    
-			        print "\tWarning! Message size ( " . $msgnums->{msgnum} . " ) is larger than the maximum size allowed ( " . $Plugin_Config->{Max_Size_Of_Any_Message} . ")"
+			        print "\tWarning! Message size ( " . $msgnums->{$msgnum} . " ) is larger than the maximum size allowed ( " . $Plugin_Config->{Max_Size_Of_Any_Message} . ")"
 			            if $verbose; 
-			        warn  "dada_bridge.pl $App_Version: Warning! Message size ( " . $msgnums->{msgnum} . " ) is larger than the maximum size allowed ( " . $Plugin_Config->{Max_Size_Of_Any_Message} . ")";
+			        warn  "dada_bridge.pl $App_Version: Warning! Message size ( " . $msgnums->{$msgnum} . " ) is larger than the maximum size allowed ( " . $Plugin_Config->{Max_Size_Of_Any_Message} . ")";
 			    
 			    }
 			    else { 
