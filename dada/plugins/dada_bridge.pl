@@ -63,10 +63,18 @@ $Plugin_Config->{MessagesAtOnce} = 1;
 
 
 # Is there a limit on how large a single email message can be, until we outright # reject it? 
-# In, "octects" (bytes) - this is about 2.5 megs...
+# In, "octets" (bytes) - this is about 2.5 megs...
 #
-$Plugin_Config->{Max_Size_Of_Any_Message} = 2621440;
+# Soft_Max_Size_Of_Any_Message is the limit to reach before we email the 
+# original sending, telling me that the message is too large
 
+$Plugin_Config->{Soft_Max_Size_Of_Any_Message}  = 1048576; # 1   meg
+
+# Max_Size_Of_Any_Message is the limit to reach before we just simply
+# ignore and remove the message. The reason why we'd ignore and remove is that 
+# the message is too large to even process! 
+
+$Plugin_Config->{Max_Size_Of_Any_Message}       = 2621440; # 2.5 meg
 
 $Plugin_Config->{Plugin_Name} = 'Dada Bridge'; 
 
@@ -153,6 +161,31 @@ was rejected by the list owner. You may email the list owner at:
 for more details. 
 
 -- [Plugin_Name]
+
+EOF
+; 
+
+
+my $Message_Too_Big_Subject = 'Message to: [list_settings.list_name]  Subject: [original_subject] rejected'; 
+my $Message_Too_Big_Message = <<EOF
+
+Hello, [subscriber.email], 
+
+We've received a message from you with the Subject,
+
+	[original_subject]
+		
+but couldn't deliver it to the mailing list because the size of the message, 
+
+	[size_of_original_message] kilobytes
+
+is larger than the maximum allowed: 
+
+	[Soft_Max_Size_Of_Any_Message] kilobytes
+
+Please try to resend the message again, but within the maximum size allowed, 
+
+-- [list_settings.list_owner_email]
 
 EOF
 ; 
@@ -829,11 +862,11 @@ sub start {
 			return; 
 		}
 		else { 
-			print "There are currently, " . 
+			print "Currently, " . 
 	      ($#mailouts + 1)         .
-	      " mass mailout(s) running or queued. That's below our limit 
-	        ($DADA::Config::MAILOUT_AT_ONCE_LIMIT), so we can check on awaiting 
-	        messages:\n\n"
+	      " mass mailout(s) running or queued. \n\n" .
+		  "That's below our limit ($DADA::Config::MAILOUT_AT_ONCE_LIMIT). \n" .
+		  "Checking awaiting  messages:\n\n"
 				if $verbose;
 		}
 	#KLUDGE!
@@ -910,10 +943,11 @@ sub start {
 			foreach my $msgnum (sort { $a <=> $b } keys %$msgnums) {
 			
 			    $local_msg_viewed++;
-			    print "\t Message Size: " . $msgnums->{$msgnum} . "\n";
-			    if($msgnums->{$msgnum} > $Plugin_Config->{Max_Size_Of_Any_Message}){ 
+			    #print "\t Message Size: " . $msgnums->{$msgnum} . " Hard Limit: " . $Plugin_Config->{Max_Size_Of_Any_Message} . " Soft Limit: " . $Plugin_Config->{Soft_Max_Size_Of_Any_Message} . "\n";
+			     print "\tMessage Size: " . $msgnums->{$msgnum} .  "\n";
+			 if($msgnums->{$msgnum} > $Plugin_Config->{Max_Size_Of_Any_Message}){ 
 			    
-			        print "\tWarning! Message size ( " . $msgnums->{$msgnum} . " ) is larger than the maximum size allowed ( " . $Plugin_Config->{Max_Size_Of_Any_Message} . ")"
+			        print "\t\tWarning! Message size ( " . $msgnums->{$msgnum} . " ) is larger than the maximum size allowed ( " . $Plugin_Config->{Max_Size_Of_Any_Message} . " )\n"
 			            if $verbose; 
 			        warn  "dada_bridge.pl $App_Version: Warning! Message size ( " . $msgnums->{$msgnum} . " ) is larger than the maximum size allowed ( " . $Plugin_Config->{Max_Size_Of_Any_Message} . ")";
 			    
@@ -922,41 +956,56 @@ sub start {
 			    
                     if ($li->{disable_discussion_sending} != 1){     
                     
-         
-
                         my $full_msg = $pop->Retrieve($msgnum);
-
                         push(@{$checksums->{$list}}, create_checksum(\$full_msg));  
                         
-                        
-                        eval { 
-                        
-                            # The below line is just for testing purposes...
-                            # die "aaaaaaarrrrgggghhhhh!!!"; 
+
+
+
+						if($msgnums->{$msgnum} > $Plugin_Config->{Soft_Max_Size_Of_Any_Message}){ 
+							
+							    print "\t\tWarning! Message size ( " . $msgnums->{$msgnum} . " ) is larger than the soft maximum size allowed ( " . $Plugin_Config->{Soft_Max_Size_Of_Any_Message} . " )\n"
+						            if $verbose; 
+						        warn  "dada_bridge.pl $App_Version: Warning! Message size ( " . $msgnums->{$msgnum} . 
+									  " ) is larger than the soft maximum size allowed ( " . 
+									  $Plugin_Config->{Soft_Max_Size_Of_Any_Message} . ")";
+									
+	                            send_msg_too_big($list, $li, \$full_msg, $msgnums->{$msgnum}); 
 	
-                            my ($status, $errors) = validate_msg($list, $full_msg, $li);
-                            if($status){  
-                                
-                                process($list, $li, $full_msg); 
-                                
-                            }else{  
-                            
-                                print "\tMessage did not pass verification - handling issues...\n"
-                                    if $verbose; 
-                                    
-                                handle_errors($list, $errors, $full_msg, $li);  
-                            
-                            }
-                            
-                         };
-                         
-                         if($@){ 
-                         
-                            warn  "dada_bridge.pl - irrecoverable error processing message. Skipping message (sorry!): $@"; 
-                            print "dada_bridge.pl - irrecoverable error processing message. Skipping message (sorry!): $@"
-                                if $verbose; 
-                                
-                         }
+	
+	
+					    }
+						else { 
+							
+                       	eval { 
+                  
+	                        # The below line is just for testing purposes...
+	                        # die "aaaaaaarrrrgggghhhhh!!!"; 
+
+	                        my ($status, $errors) = validate_msg($list, \$full_msg, $li);
+	                        if($status){  
+                          
+	                            process($list, $li, $full_msg); 
+                          
+	                        }else{  
+                      
+	                            print "\tMessage did not pass verification - handling issues...\n"
+	                                if $verbose; 
+                              
+	                            handle_errors($list, $errors, $full_msg, $li);  
+                      
+	                        }
+                      
+	                     };
+                   
+	                     if($@){ 
+                   
+	                        warn  "dada_bridge.pl - irrecoverable error processing message. Skipping message (sorry!): $@"; 
+	                        print "dada_bridge.pl - irrecoverable error processing message. Skipping message (sorry!): $@"
+	                            if $verbose; 
+                          
+	                     }
+						}
                         
                         
                     }else{  
@@ -980,7 +1029,7 @@ sub start {
 			my $delete_msg_count = 0; 
             
 			foreach my $msgnum_d (sort { $a <=> $b } keys %$msgnums) {  
-				print "\tremoving message from server...\n"
+				print "\tRemoving message from server...\n"
 					 if $verbose;
 				$pop->Delete($msgnum_d);  
 				$delete_msg_count++; 
@@ -990,7 +1039,7 @@ sub start {
 					if $delete_msg_count >= $local_msg_viewed;
 				
 			} 
-			print "\tdisconnecting from POP3 server\n" 
+			print "\tDisconnecting from POP3 server\n" 
 				if $verbose;
 			
 			$pop->Close();
@@ -1022,7 +1071,7 @@ sub start {
 
 
 
-sub message_was_deleted_check() { 
+sub message_was_deleted_check { 
 	
 	# DEV: Nice for testing...
 	#return; 
@@ -1320,7 +1369,7 @@ sub valid_login_information {
 sub validate_msg { 
 
 	my $list   = shift; 
-	my $msg    = shift;
+	my $msg    = shift; # This is a ref...
 	my $li     = shift; 
 	
 	
@@ -1345,7 +1394,7 @@ sub validate_msg {
 	
 	my $entity; 
 	 
-	eval { $entity = $parser->parse_data($msg) };
+	eval { $entity = $parser->parse_data($$msg) };
 	
 	if(!$entity){
 		print "\t\tMessage invalid! - no entity found.\n" if $verbose;  
@@ -1753,6 +1802,67 @@ sub validate_msg {
 	return ($status, $errors); 
 }
 
+
+
+sub send_msg_too_big { 
+	my $list         = shift; 
+	my $li           = shift; 
+	my $full_msg_ref = shift;
+	my $size         = shift; 
+	my $entity; 
+	eval { 
+		 $entity = $parser->parse_data($$full_msg_ref);
+		if(!$entity){
+			warn "couldn't create a new entity in send_msg_too_big, passing.";   
+		}
+
+		my $from_address = (
+			Email::Address->parse(
+				$entity->head->get(
+					'From', 0
+				)
+			)
+		)[0]->address; 
+			
+		
+		require DADA::App::Messages; 
+		DADA::App::Messages::send_generic_email(
+			{
+				-list                     => $list, 
+				-headers                  => {
+					To                    => $from_address, 
+					Subject               => $Message_Too_Big_Subject, 
+				}, 
+				-body                     => $Message_Too_Big_Message, 
+				-tmpl_params => {
+					-list_settings_vars       => $li, 
+					-list_settings_vars_param => 
+						{
+							-dot_it => 1, 
+						},
+
+					-subscriber_vars          => 
+						{
+							'subscriber.email' => $from_address, 
+						},
+					-vars => { 
+						original_subject 		     => $entity->head->get('Subject', 0),
+						size_of_original_message     => sprintf("%.1f", ($size / 1024)),
+						Soft_Max_Size_Of_Any_Message => sprintf("%.1f", ($Plugin_Config->{Soft_Max_Size_Of_Any_Message} / 1024 )),
+					}
+				}
+			}	
+		);
+	};
+	if(!$@){ 
+		return 1; 
+	}
+	else { 
+		warn "Wasn't able to process message in send_msg_too_big: $@"; 
+		return 0; 
+	}
+		
+}
 
 
 
@@ -2191,7 +2301,7 @@ sub send_invalid_msgs_to_owner {
 				-list_settings_vars_param => 
 					{
 						-dot_it => 1, 
-					}
+					},
 					
 				-subscriber_vars          => 
 					{
