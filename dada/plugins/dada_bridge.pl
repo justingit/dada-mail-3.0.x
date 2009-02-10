@@ -943,9 +943,8 @@ sub start {
 			foreach my $msgnum (sort { $a <=> $b } keys %$msgnums) {
 			
 			    $local_msg_viewed++;
-			    #print "\t Message Size: " . $msgnums->{$msgnum} . " Hard Limit: " . $Plugin_Config->{Max_Size_Of_Any_Message} . " Soft Limit: " . $Plugin_Config->{Soft_Max_Size_Of_Any_Message} . "\n";
-			     print "\tMessage Size: " . $msgnums->{$msgnum} .  "\n";
-			 if($msgnums->{$msgnum} > $Plugin_Config->{Max_Size_Of_Any_Message}){ 
+			    print "\tMessage Size: " . $msgnums->{$msgnum} .  "\n";
+			 	if($msgnums->{$msgnum} > $Plugin_Config->{Max_Size_Of_Any_Message}){ 
 			    
 			        print "\t\tWarning! Message size ( " . $msgnums->{$msgnum} . " ) is larger than the maximum size allowed ( " . $Plugin_Config->{Max_Size_Of_Any_Message} . " )\n"
 			            if $verbose; 
@@ -1386,7 +1385,7 @@ sub validate_msg {
 
 	my $lh = DADA::MailingList::Subscribers->new({-list => $list}); 
 	
-	if($li->{discussion_pop_email} eq $li->{list_owner_email}){ 
+	if(lc_email($li->{discussion_pop_email}) eq lc_email($li->{list_owner_email})){ 
 		print "\t\t***Warning!*** Misconfiguration of plugin! The list owner email cannot be the same address as the list email address!\n"
 			if $verbose; 
 		$errors->{list_email_address_is_list_owner_address} = 1;
@@ -1416,7 +1415,7 @@ sub validate_msg {
 	    my $x_been_there_header = $entity->head->get('X-BeenThere', 0);
 	    chomp($x_been_there_header);
 	    
-	    if($x_been_there_header eq $li->{discussion_pop_email}){ 
+	    if(lc_email($x_been_there_header) eq lc_email($li->{discussion_pop_email})){ 
 	        print "\t\tMessage is from myself (the, X-BeenThere header has been set), message should be ignored...\n"
 	            if $verbose;
 	        $errors->{x_been_there_header_found} = 1;
@@ -1441,10 +1440,9 @@ sub validate_msg {
 	print "\t\tMessage is from: '" . $from_address . "'\n"
 		if $verbose; 
 	
-	if($from_address eq $li->{list_owner_email}){ 
+	if(lc_email($from_address) eq lc_email($li->{list_owner_email})){ 
 		print "\t\t * From: address is the list owner address ; (". $li->{list_owner_email} .')' . "\n"
 			if $verbose;
-		
 		
             if($Plugin_Config->{Check_List_Owner_Return_Path_Header}){ 
             
@@ -1588,7 +1586,7 @@ sub validate_msg {
        # if($errors->{msg_not_from_list_owner} == 0){ 
  
 		# The f'ing check gets erased from above, so we sort of have to do it again...
-       if($from_address eq $li->{list_owner_email}){ 
+       if(lc_email($from_address) eq lc_email($li->{list_owner_email})){ 
 	
             print "\t\tSkipping Authorized Senders check - message is from the list owner.\n"
                 if $verbose; 
@@ -1786,7 +1784,7 @@ sub validate_msg {
     
 
     # This below probably can't happen anymore...
-	if ($li->{discussion_pop_email} eq $from_address){ 
+	if (lc_email($li->{discussion_pop_email}) eq lc_email($from_address)){ 
 		$errors->{msg_from_list_address} = 1;
 		print "\t\t *WARNING!* Message is from the List Address. That's bad.\n"
 			if $verbose; 
@@ -1917,10 +1915,12 @@ sub dm_format {
 	my $fm = DADA::App::FormatMessages->new(-List => $list); 
 	   $fm->treat_as_discussion_msg(1); 
 	
-	if($li->{group_list} == 0 && $li->{rewrite_anounce_from_header} == 0){ 
+	if(
+		$li->{group_list}                  == 0 && 
+		$li->{rewrite_anounce_from_header}  == 0
+	){ 
 	   $fm->reset_from_header(0);
 	}
-	
 	
 	my ($header_str, $body_str) = $fm->format_headers_and_body(-msg => $msg);
 	
