@@ -4312,7 +4312,7 @@ and to say that you've got the freshest tools on the Web.
 
 
 $VERSION = 3.0.2; 
-$VER     = '3.0.2';
+$VER     = '3.0.2 - pre 2/9/09';
 
 #
 #
