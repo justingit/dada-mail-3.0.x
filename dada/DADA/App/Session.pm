@@ -443,8 +443,13 @@ sub check_session_list_security {
     if($problems){ 
     	
     	if($args{-manual_override} == 1){ 
-    		return ($args{-Admin_List}, $root_logged_in, 0);
-    	}else{ 
+    		return (
+				$args{-Admin_List}, 
+				$root_logged_in, 
+				0
+			);
+    	}
+		else { 
     	
 		# DEV: This is like, the most annoying thing in the whole wide world: 
     	# If it's CGI::Session, let's ditch the session cookie...
@@ -478,10 +483,15 @@ sub check_session_list_security {
 		$self->{can_use_data_dumper} == 1
 		){ 
             $session->flush();
-            undef $session;      
+            undef $session;  
+            
         }
         
-   		return ($args{-Admin_List}, $root_logged_in, 1);
+   		return (
+				$args{-Admin_List}, 
+				$root_logged_in, 
+				1
+				);
    	}
 
 }
