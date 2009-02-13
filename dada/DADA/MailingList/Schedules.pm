@@ -55,23 +55,32 @@ sub run_schedules {
 	my $time        = time;
 	
 	$r .= "\n" . '-' x 72 . "\nRunning Schedule For: " . $self->{name} . "\n";
+	#warn "\n" . '-' x 72 . "\nRunning Schedule For: " . $self->{name} . "\n";
+	
+	
 	$r .=  "Current time is: " . $self->printable_date($time) . "\n";
+	#warn "Current time is: " . $self->printable_date($time) . "\n";
+
 
 	my @record_keys = $self->record_keys(); 
 	
 
 		$r .=  "    No schedules to run.\n" if ( !@record_keys);
+		#warn  "    No schedules to run.\n" if ( !@record_keys);
+		
 	foreach my $rec_key(@record_keys){																#for all our schedules - 
 		
 		my $mail_status = {};
 		my $checksums   = {};
-			
-		my $mailing_schedule  = $self->mailing_schedule($rec_key);
-		my $rec               = $self->get_record($rec_key); 
+		
+		my $rec               = $self->get_record($rec_key); 	
+		my $mailing_schedule  = $self->mailing_schedule($rec_key, $rec);
+	
 		my $run_this_schedule = 0;	
 		my $never_ran_before  = 0; 
 		
 		$r .=  "\n    Examining Schedule: '" . $rec->{message_name} . "'\n";
+		#warn "\n    Examining Schedule: '" . $rec->{message_name} . "'\n";
 		
 		if($rec->{active} ==1){													 							#first things first, is this schedule even active?
 		
@@ -84,16 +93,20 @@ sub run_schedules {
 			
 			if($rec->{last_mailing}){ 
 				$r .=  "        Last mailing:              " . $self->printable_date($rec->{last_mailing}) . "\n";
+				#warn "        Last mailing:              " . $self->printable_date($rec->{last_mailing}) . "\n";
 			}
 			    
 			    if($never_ran_before == 1){ 
 			    	$r .=  "        This seems to be the first time schedule has been looked at...\n";
+					#warn "        This seems to be the first time schedule has been looked at...\n";
 			    }else{ 
 			    	$r .=  "        Schedule last checked:     " .   $self->printable_date($rec->{last_schedule_run}) . "\n";
+					#warn "        Schedule last checked:     " .   $self->printable_date($rec->{last_schedule_run}) . "\n";
 				}
 			
 			if($mailing_schedule->[0]){ 
 				$r .=  "        Next mailing should be on: " . $self->printable_date($mailing_schedule->[0]) . "\n";
+				#warn "        Next mailing should be on: " . $self->printable_date($mailing_schedule->[0]) . "\n";
 			}
 			CHECKSCHEDULE: foreach my $s_time(@$mailing_schedule){
 													# this should be last mailing, eh?!
@@ -121,15 +134,21 @@ sub run_schedules {
 			
 																			   		   							 
 						$r .=  "            '" . $rec->{message_name} . "' scheduled to run now! \n";
+						#warn "            '" . $rec->{message_name} . "' scheduled to run now! \n";
 						$run_this_schedule = 1;
 						last CHECKSCHEDULE; 															# run only the last schedule, lest we bombard a hapless list. 						 
 				}
 			}
 		}else{ 
 			$r .=  "        '" . $rec->{message_name} . "' is inactive. \n";
+			#warn   "        '" . $rec->{message_name} . "' is inactive. \n";
 		}
 		
+		#warn "here.1"; 
+		
 		if($run_this_schedule == 1){ 
+	
+		
 			if($args{-test} == 1){ 		
 				($mail_status, $checksums) = $self->send_scheduled_mailing(
 																		   -key   => $rec_key, 
@@ -148,47 +167,70 @@ sub run_schedules {
 			}			
 		}
 		
+		#warn "here.2"; 
 		
+		# I don't know why this line wasn't in here: 
+			if($run_this_schedule == 1){ 
+				
 		
-		if(! $args{-test}){ 
-		     $rec->{active}            = 0 if ! $mailing_schedule->[0];
-		 	 $rec->{last_schedule_run} = $time;		
+				if(! $args{-test}){ 
+			
+					#warn "here.3"; 
+			
+				     $rec->{active}            = 0 if ! $mailing_schedule->[0];
+				 	 $rec->{last_schedule_run} = $time;		
 		 	 
-			 if(keys %$checksums){ 
-			 		$rec->{PlainText_ver}->{checksum} = $checksums->{PlainText_checksum};
-			 		$rec->{HTML_ver}->{checksum}      = $checksums->{HTML_checksum};			 	
-			 }	
+					 if(keys %$checksums){ 
+					 		$rec->{PlainText_ver}->{checksum} = $checksums->{PlainText_checksum};
+					 		$rec->{HTML_ver}->{checksum}      = $checksums->{HTML_checksum};			 	
+					 }	
 			
-			$self->save_record(-key => $rec_key, -data => $rec, -mode => 'append');											# save the changes we've made to the record.			
-			$rec = $self->get_record($rec_key); 
-			
-		} 
+						#warn "here.4"; 
+				
+					$self->save_record(
+						-key => $rec_key, 
+						-data => $rec, 
+						-mode => 'append',
+					);											# save the changes we've made to the record.			
+						#warn "here.5"; 
+					$rec = $self->get_record($rec_key); 
+						#warn "here.6"; 
+				} 
 	
-		if(keys %$mail_status){
-			$r .=  "\n            ***    Scheduled Mailing Not Sent, Reason(s):    ***\n";
-			$r .=   '                - ' .  DADA::App::Guts::pretty($_) . "\n" foreach keys %$mail_status;
-			$r .=  "\n";
+				if(keys %$mail_status){
+					$r .=  "\n            ***    Scheduled Mailing Not Sent, Reason(s):    ***\n";
+					#warn  "\n            ***    Scheduled Mailing Not Sent, Reason(s):    ***\n";
+					$r .=   '                - ' .  DADA::App::Guts::pretty($_) . "\n" foreach keys %$mail_status;
+					#warn '                - ' .  DADA::App::Guts::pretty($_) . "\n" foreach keys %$mail_status;
+					$r .=  "\n";
 			
+				}
+		
+				if((! $args{-test})              && 
+				   (! keys %$mail_status)        && 
+				   ($rec->{active}         == 0) &&
+				   ($rec->{self_destruct}  == 1)
+				  ){ 
+				  	$r .= "\n        Schedule is set to self destruct! \n";
+				#warn "\n        Schedule is set to self destruct! \n";
+					$self->remove_record($rec_key); 
+				}else{ 
+					#print "nope!"; 
+				}
+			}
+		
 		}
-		
-		if((! $args{-test})              && 
-		   (! keys %$mail_status)        && 
-		   ($rec->{active}         == 0) &&
-		   ($rec->{self_destruct}  == 1)
-		  ){ 
-		  	$r .= "\n        Schedule is set to self destruct! \n";
-			$self->remove_record($rec_key); 
-		}else{ 
-			#print "nope!"; 
-		}
+	# 	if($run_this_schedule == 1){ 
 		
 		
-	}
-	
+		
+		
 	$r .= '-' x 72 . "\n";
 	
 	$self->_send_held_messages; 
 	
+	#warn "here.7"; 
+		
 	return $r; 
 	
 	
@@ -210,14 +252,14 @@ returns a reference to an array of times that a schedule saved in $key has to be
 sub mailing_schedule {
     my $self     = shift;
     my $key      = shift;
+	my $r        = shift || $self->get_record($key);
     my $today_is = time;
 
     if ( !defined($key) ) {
         croak "no key $!";
     }
 
-    my $r             = $self->get_record($key);
-    my $sched_mailing = $r->{mailing_date};
+   my $sched_mailing = $r->{mailing_date};
 
     if ( $r->{repeat_mailing} != 1 ) {
 

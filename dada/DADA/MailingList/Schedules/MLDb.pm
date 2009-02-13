@@ -100,6 +100,7 @@ be written over if B<-mode> is set to any other value.
 
 sub save_record { 
 	my $self = shift; 
+#	warn "save1"; 
 	
 	my %args = (-key  => undef, 
 				-mode => 'append', 
@@ -108,17 +109,32 @@ sub save_record {
 				@_,
 			   ); 
 			   
+		#	warn "save2"; 
 			   
 	my $key = $args{-key}; 
 	
+#	warn "save3"; 
+	
+	
 	$key = $self->new_key if ! $key; 		   
+		
+	#	warn "save4"; 
+		
 		
 	if($args{-mode} eq 'append'){ 
 		if(exists $self->{DB_HASH}->{$key}){ 
-		    
+		  #  warn "save5"; 
+			
 			my $tmp = $self->{DB_HASH}->{$key};
+		#	warn "save6"; 
+			
 			%$tmp = (%$tmp, %{$args{-data}}); 
+		#	warn "save7"; 
+			# This is a bottleneck, for some reason: 
 			$self->{DB_HASH}->{$key} = $tmp; 
+		
+		#	warn "save8"; 
+		
 		}else{
 		    
 			$self->{DB_HASH}->{$key} = $args{-data}; 
@@ -127,14 +143,18 @@ sub save_record {
 		$self->{DB_HASH}->{$key} = $args{-data}; 
 	}
 
+#	warn "save9"; 
+
     # dude, if this works, we are so golden...
 	
 	
 	#$self->{function} = 'schedules'; 
 	
 	if($args{-backup} == 1){ 
-	    $self->backupToDir;
+	    # This is probably a bottleneck, too
+		$self->backupToDir;
 	}
+	#warn "save10"; 
 	
 	return $key; 
 	
@@ -206,7 +226,20 @@ Returns all records keys.
 
 sub record_keys { 
 	my $self = shift; 
-	return sort {$a <=> $b} keys %{$self->{DB_HASH}}; 
+	my @keys = (); 
+	
+	#return sort {$a <=> $b} keys %{$self->{DB_HASH}}; 
+	#my @keys = keys  %{$self->{DB_HASH}};
+	#@keys = sort {$a <=> $b} @keys; 
+	
+	while(my ($key, $value) = each(%{$self->{DB_HASH}})){
+		push(@keys, $key); 
+	}
+	@keys = sort {$a <=> $b} @keys; 
+	
+	return @keys; 
+	
+	
 } 
 
 
