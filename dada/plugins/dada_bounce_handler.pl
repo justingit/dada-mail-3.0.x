@@ -1990,6 +1990,16 @@ sub cl_main {
 		&version(); 
 	}
 	
+	if(!$Plugin_Config->{Server} ||
+	   !$Plugin_Config->{Username} || 
+       !$Plugin_Config->{Password}
+	){ 
+		print "The Server Username and/password haven't been filled out, stopping." 
+		    if $verbose;		
+			return;
+	}
+	
+	
 	print "Making POP3 Connection...\n" 
 	    if $verbose; 
 	
