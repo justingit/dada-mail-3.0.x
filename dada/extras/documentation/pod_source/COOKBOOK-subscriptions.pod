@@ -429,6 +429,6 @@ Subscribing an address with Subscriber Fields is the same as subscribing an addr
 
 The C<DADA::MailingList::Subscribers> module is fairly heavily documented: 
 
-L<http://dadamailproject.com/support/documentation/MailingList_Subscribers.html>
+L<http://dadamailproject.com/support/documentation/MailingList_Subscribers.pm.html>
 
 =cut
