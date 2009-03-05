@@ -1719,7 +1719,7 @@ In other words, if someone is both black listed and white listed, during validat
  	$black_listed, 
  	$not_white_listed, 
  	$invalid
- 	) = $lh->filter_subscribers(
+ 	) = $lh->filter_subscribers_w_meta(
  		{
  			-emails => [], 
  			-type   => 'list',
