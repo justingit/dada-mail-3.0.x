@@ -427,7 +427,7 @@ sub open_template {
 
 sub list_template { 
 
-	use DADA::Template::Widgets; 
+	require DADA::Template::Widgets; 
     require CGI; 
     my $q = CGI->new; 
        $q->charset($DADA::Config::HTML_CHARSET); 

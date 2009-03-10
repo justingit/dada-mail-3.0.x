@@ -414,7 +414,7 @@ sub default_screen {
 	require DADA::MailingList::Settings;
 	       $DADA::MailingList::Settings::dbi_obj = $dbi_handle;
 
-	use DADA::MailingList::Archives; 
+	require DADA::MailingList::Archives; 
 	       $DADA::MailingList::Archives::dbi_obj = $dbi_handle;
 	       
     my $subscriber_fields; 
