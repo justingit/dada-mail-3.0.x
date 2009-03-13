@@ -4014,6 +4014,7 @@ encrypted.
 
 # List CP -> Options
 	enable_fckeditor                => 1, 
+	enable_mass_subscribe           => 1, 
 
     
 
