@@ -2,6 +2,72 @@
 
 =head1 Dada Mail Changelog for version 3.x.x
 
+=head1 3.0.3
+
+=head2 Download 3.0.3
+
+=over
+
+=item * tar.gz
+
+http://downloads.sourceforge.net/mojomail/dada-3_0_3.tar.gz?use_mirror=voxel
+
+=item * zip
+
+http://downloads.sourceforge.net/mojomail/dada-3_0_3.zip?use_mirror=voxel
+
+=back
+
+=head2 Changes 3.0.3
+
+This release focuses almost soley on bug fixes and ease of upgrading from previous versions, most especially, version 3.0.2 (the last stable release), 3.0.1 and 3.0.0. 
+
+This is similar to the 3.0.2 release and the same notes apply. 
+
+
+=head2 Bug Fixes 3.0.3
+
+=over
+
+=item * 2670414  	 3.0.2 - Archive, but don't Send broken for Send a Webpage
+
+https://sourceforge.net/tracker2/?func=detail&aid=2670414&group_id=13002&atid=113002
+
+=item * 3.0.2 - "Subscription Cookbook" see also link broken
+
+https://sourceforge.net/tracker2/?func=detail&aid=2660673&group_id=13002&atid=113002
+
+=item * 2660652  	 3.0.2 -filter_subscribers_w_meta docs use wrong code example
+
+https://sourceforge.net/tracker2/?func=detail&aid=2660652&group_id=13002&atid=113002
+
+=item * 3.0.2 - Session info always uses default driver
+
+https://sourceforge.net/tracker2/?func=detail&aid=2592671&group_id=13002&atid=113002
+
+=item *  2563003 3.0.2 - large msgs choke Dada Bridge on processing
+
+http://sourceforge.net/tracker/index.php?func=detail&aid=2563003&group_id=13002&atid=113002
+
+=item * 2520821 3.0.2 - Archive Back Date missing option for year 2009
+
+https://sourceforge.net/tracker2/?func=detail&aid=2520821&group_id=13002&atid=113002
+
+=item * 2489198  	 3.0.2 - Dadaized-FormMail - subscription API out of date
+
+https://sourceforge.net/tracker2/?func=detail&aid=2489198&group_id=13002&atid=113002
+
+=item * 2489192  	 3.0.2 - Dadaized-FormMail - Config.pm variable $MAILPROG...
+
+https://sourceforge.net/tracker2/?func=detail&aid=2489192&group_id=13002&atid=113002
+
+=item * 2481213  	 3.0.2 - Dada Mail broken without DBI module
+
+https://sourceforge.net/tracker2/?func=detail&aid=2481213&group_id=13002&atid=113002
+
+
+=back
+
 =head1 3.0.2
 
 =head2 Download 3.0.2
