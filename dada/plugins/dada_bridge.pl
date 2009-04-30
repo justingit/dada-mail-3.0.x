@@ -943,7 +943,9 @@ sub start {
 			foreach my $msgnum (sort { $a <=> $b } keys %$msgnums) {
 			
 			    $local_msg_viewed++;
-			    print "\tMessage Size: " . $msgnums->{$msgnum} .  "\n";
+			    print "\tMessage Size: " . $msgnums->{$msgnum} .  "\n"
+					if $verbose; 
+					
 			 	if($msgnums->{$msgnum} > $Plugin_Config->{Max_Size_Of_Any_Message}){ 
 			    
 			        print "\t\tWarning! Message size ( " . $msgnums->{$msgnum} . " ) is larger than the maximum size allowed ( " . $Plugin_Config->{Max_Size_Of_Any_Message} . " )\n"
