@@ -264,3 +264,26 @@ In rare occassions, the mail server will actually strip out the HTML version of 
 
 =cut
 
+
+Generally if Dada Mail sends a message and it doesn't get received, there's a few things that can happen and for you to check: 
+
+If it was a problem with Dada Mail - a bug or misconfiguration, there will be an line about it in the error log. You'll have to set up the error log, usually yourself: 
+
+http://dadamailproject.com/support/documentation/error_faq.pod.html
+
+If it was a problem with your mail server, or say, Gmail, it's possible that your original message will be bounced back, to whatever you've set up to handle bounced messages. By default, this'll just be the list owner of your list, but it could be someone else. Here's how to find out who: 
+
+http://dadamailproject.com/support/documentation-dada-3_0_3/FAQ-email_sending.pod.html#where_are_my_bounce_messages_going
+
+Sometimes, messages get sent out by Dada Mail and no errors or bounces happen, but the message is still not delivered. The majority of the time, this happens if you go over some sort of email quota, set by your hosting company. If this happens, most any of your mail will just go into a deep dark pit, which is very frustrating. 
+
+Before getting to that conclusion though, double and triple check your settings in Gmail - see if it didn't just go into the Spam folder. 
+
+
+
+
+
+
+
+
+
