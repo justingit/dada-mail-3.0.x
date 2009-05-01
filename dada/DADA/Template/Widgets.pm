@@ -1494,7 +1494,7 @@ sub screen {
     }
 
 	if(exists($args->{-webify_these})){ 
-		foreach(keys %{$args->{-webify_these}}){ 
+		foreach(@{$args->{-webify_these}}){ 
 	    	$template_vars->{$_} = webify_plain_text($template_vars->{$_});
 	    }
 	}
