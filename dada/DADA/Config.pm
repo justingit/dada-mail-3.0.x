@@ -4320,8 +4320,8 @@ and to say that you've got the freshest tools on the Web.
 
 
 
-$VERSION = 3.0.3; 
-$VER     = '3.0.3 Stable';
+$VERSION = 3.0.4; 
+$VER     = '3.0.4 pre 5/19/09';
 
 #
 #
