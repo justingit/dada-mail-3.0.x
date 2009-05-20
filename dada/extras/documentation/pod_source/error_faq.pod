@@ -535,7 +535,25 @@ This script goes through every single directory, looking for directories named, 
 
 You should feel very nervous about running a program that delete massive amounts of files/directories. Don't use this script unless you fully understand that fact, since the possibility - however small, is there that this script could delete a file you didn't want removed. 
 
+=head2 I Can't Log Into the List Control Panel! 
 
+There's a few things to check: 
+
+Dada Mail supports a large variety of backends for its session handling. The type of backend your using will be set in the Config variable, C<$SESSION_DB_TYPE>.
+
+To get out of a pickle, try setting this variable to, "Classic", 
+
+ $SESSION_DB_TYPE = 'Classic'; 
+
+It's not advised to I<keep> this variable set like this, as it's less secure than any other option, but it could help you get into your List Control Panel
+
+By default, this variable is probably set to, C<Db>.  Is if is, the main reason why logging in doesn't work is that you've run out of disk space for the session information to be written to. This could also happen if this variable is set to, C<PlainText> 
+
+The other thing to check is your browser, firewall - etc. Dada Mail needs to set a browser cookie - if it can't - no log in can be made. 
+
+If all you need to do is reset the Dada Mail Root Password, you may: 
+
+L<http://dadamailproject.com/support/documentation-dada/faq.pod.html#how_do_i_fetch_reset_the_dada_mail_root_password>
 
 =head2 Died at /usr/lib/perl5/5.8.8/base.pm line 85
 
