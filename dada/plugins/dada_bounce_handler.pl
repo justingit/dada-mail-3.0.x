@@ -3768,18 +3768,17 @@ sub remove_bounces {
 							-body      => $Email_Unsubscribed_Because_Of_Bouncing_Message, 
 							-tmpl_params => { 
 								-list_settings_vars_param => { 
-										list => $list,
-								}
+										-list => $list,
+								},
 								-subscriber_vars => {
 									'subscriber.email' => $d_email, 
-								}
+								},
 								-vars => {
 											Plugin_Name => $Plugin_Config->{Program_Name},
 										},
 							}, 
 						}
-					);
-					if($li->{enable_bounce_logging}){
+					);					if($li->{enable_bounce_logging}){
 						$r->bounce_log($Bounce_History->{$list}->{$d_email}->[0]->{'Simplified-Message-Id'},  $d_email); 
 					}
 	
