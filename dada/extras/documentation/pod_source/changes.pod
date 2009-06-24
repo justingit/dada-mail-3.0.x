@@ -2,6 +2,57 @@
 
 =head1 Dada Mail Changelog for version 3.x.x
 
+=head1 3.0.4
+
+=head2 Download 3.0.4
+
+Use git: 
+
+http://github.com/justingit/dada-mail-3.0.x/tree/master
+
+=head2 Changes 3.0.4
+
+This release focuses almost soley on bug fixes and ease of upgrading from previous versions, most especially, version 3.0.23 (the last stable release) and earlier versions. 
+
+
+=head2 Bug Fixes 3.0.4
+
+=over
+
+=item * 2769423  	 3.0.3 - Msg size always reported
+
+http://sourceforge.net/tracker/?func=detail&aid=2769423&group_id=13002&atid=113002
+
+=item * 3.0.3 If a current subscriber attempts to subscribe again...
+
+https://sourceforge.net/tracker/index.php?func=detail&aid=2778910&group_id=13002&atid=113002
+
+=item * 2784714  	 3.0.3 - specific list_settings not webified in HTML emails
+
+https://sourceforge.net/tracker/?func=detail&aid=2784714&group_id=13002&atid=113002
+
+=item * 2768141  	 3.0.0 - mistake in sub erase_score_card
+
+https://sourceforge.net/tracker/?func=detail&aid=2768141&group_id=13002&atid=113002
+
+=item *   2791876  	 3.0.3 - spaces in attachment filenames make file unviewable
+
+https://sourceforge.net/tracker/?func=detail&aid=2791876&group_id=13002&atid=113002
+
+=item * 2791550 3.0.3 - Undefined subroutine _mime_headers_from_string
+
+https://sourceforge.net/tracker/?func=detail&aid=2791550&group_id=13002&atid=113002
+
+=item *  2791304  	 Discussion list spam vulnerability
+
+https://sourceforge.net/tracker/?func=detail&aid=2791304&group_id=13002&atid=113002
+
+=item *  2790606 3.0.3 - Can't use string ("xxxxxxxx") as a HASH ref
+
+http://sourceforge.net/tracker/?func=detail&aid=2790606&group_id=13002&atid=113002
+
+=back
+
 =head1 3.0.3
 
 =head2 Download 3.0.3
