@@ -5,14 +5,13 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = "5.819";
+$VERSION = "5.827";
 
 use HTTP::Request ();
 use HTTP::Response ();
 use HTTP::Date ();
 
 use LWP ();
-use LWP::Debug ();
 use LWP::Protocol ();
 
 use Carp ();
@@ -35,10 +34,10 @@ sub new
         if ref($_[1]) eq 'HASH'; 
 
     my($class, %cnf) = @_;
-    LWP::Debug::trace('()');
 
     my $agent = delete $cnf{agent};
     my $from  = delete $cnf{from};
+    my $def_headers = delete $cnf{default_headers};
     my $timeout = delete $cnf{timeout};
     $timeout = 3*60 unless defined $timeout;
     my $use_eval = delete $cnf{use_eval};
@@ -80,7 +79,7 @@ sub new
     }
 
     my $self = bless {
-		      def_headers  => undef,
+		      def_headers  => $def_headers,
 		      timeout      => $timeout,
 		      use_eval     => $use_eval,
                       show_progress=> $show_progress,
@@ -119,8 +118,6 @@ sub send_request
 
     local($SIG{__DIE__});  # protect against user defined die handlers
 
-    LWP::Debug::trace("$method $url");
-
     $self->progress("begin", $request);
 
     my $response = $self->run_handlers("request_send", $request);
@@ -134,22 +131,16 @@ sub send_request
             my $x;
             if($x = $self->protocols_allowed) {
                 if (grep lc($_) eq $scheme, @$x) {
-                    LWP::Debug::trace("$scheme URLs are among $self\'s allowed protocols (@$x)");
                 }
                 else {
-                    LWP::Debug::trace("$scheme URLs aren't among $self\'s allowed protocols (@$x)");
                     require LWP::Protocol::nogo;
                     $protocol = LWP::Protocol::nogo->new;
                 }
             }
             elsif ($x = $self->protocols_forbidden) {
                 if(grep lc($_) eq $scheme, @$x) {
-                    LWP::Debug::trace("$scheme URLs are among $self\'s forbidden protocols (@$x)");
                     require LWP::Protocol::nogo;
                     $protocol = LWP::Protocol::nogo->new;
-                }
-                else {
-                    LWP::Debug::trace("$scheme URLs aren't among $self\'s forbidden protocols (@$x)");
                 }
             }
             # else fall thru and create the protocol object normally
@@ -167,11 +158,12 @@ sub send_request
                 $@ =~ s/ at .* line \d+.*//s;  # remove file/line number
                 $response =  _new_response($request, &HTTP::Status::RC_NOT_IMPLEMENTED, $@);
                 if ($scheme eq "https") {
-                    $response->message($response->message . " (Crypt::SSLeay not installed)");
+                    $response->message($response->message . " (Crypt::SSLeay or IO::Socket::SSL not installed)");
                     $response->content_type("text/plain");
                     $response->content(<<EOT);
-LWP will support https URLs if the Crypt::SSLeay module is installed.
-More information at <http://www.linpro.no/lwp/libwww-perl/README.SSL>.
+LWP will support https URLs if either Crypt::SSLeay or IO::Socket::SSL
+is installed. More information at
+<http://search.cpan.org/dist/libwww-perl/README.SSL>.
 EOT
                 }
             }
@@ -211,18 +203,11 @@ sub prepare_request
 {
     my($self, $request) = @_;
     die "Method missing" unless $request->method;
-    my $url = $request->url;
+    my $url = $request->uri;
     die "URL missing" unless $url;
     die "URL must be absolute" unless $url->scheme;
 
     $self->run_handlers("request_preprepare", $request);
-
-    my $max_size = $self->{max_size};
-    if (defined $max_size) {
-	my $last = $max_size - 1;
-	$last = 0 if $last < 0;  # there is no way to actually request no content
-	$request->init_header('Range' => "bytes=0-$last");
-    }
 
     if (my $def_headers = $self->{def_headers}) {
 	for my $h ($def_headers->header_field_names) {
@@ -270,35 +255,20 @@ sub request
 {
     my($self, $request, $arg, $size, $previous) = @_;
 
-    LWP::Debug::trace('()');
-
     my $response = $self->simple_request($request, $arg, $size);
+    $response->previous($previous) if $previous;
 
-    if ($previous) {
-        $response->previous($previous);
-
-	# Check for loop in the redirects, we only count
-	my $count = 0;
-	my $r = $response;
-	while ($r) {
-	    if (++$count > $self->{max_redirect}) {
-		$response->header("Client-Warning" =>
-				  "Redirect loop detected (max_redirect = $self->{max_redirect})");
-		return $response;
-	    }
-	    $r = $r->previous;
-	}
+    if ($response->redirects >= $self->{max_redirect}) {
+        $response->header("Client-Warning" =>
+                          "Redirect loop detected (max_redirect = $self->{max_redirect})");
+        return $response;
     }
 
     if (my $req = $self->run_handlers("response_redirect", $response)) {
         return $self->request($req, $arg, $size, $response);
     }
 
-
     my $code = $response->code;
-    LWP::Debug::debug('Simple response: ' .
-		      (HTTP::Status::status_message($code) ||
-		       "Unknown code $code"));
 
     if ($code == &HTTP::Status::RC_MOVED_PERMANENTLY or
 	$code == &HTTP::Status::RC_FOUND or
@@ -311,11 +281,11 @@ sub request
 	$referral->remove_header('Host', 'Cookie');
 	
 	if ($referral->header('Referer') &&
-	    $request->url->scheme eq 'https' &&
-	    $referral->url->scheme eq 'http')
+	    $request->uri->scheme eq 'https' &&
+	    $referral->uri->scheme eq 'http')
 	{
 	    # RFC 2616, section 15.1.3.
-	    LWP::Debug::trace("https -> http redirect, suppressing Referer");
+	    # https -> http redirect, suppressing Referer
 	    $referral->remove_header('Referer');
 	}
 
@@ -341,7 +311,7 @@ sub request
 	    $referral_uri = $HTTP::URI_CLASS->new($referral_uri, $base)
 		            ->abs($base);
 	}
-	$referral->url($referral_uri);
+	$referral->uri($referral_uri);
 
 	return $response unless $self->redirect_ok($referral, $response);
 	return $self->request($referral, $arg, $size, $response);
@@ -487,6 +457,8 @@ my @ANI = qw(- \ | /);
 sub progress {
     my($self, $status, $m) = @_;
     return unless $self->{show_progress};
+
+    local($,, $\);
     if ($status eq "begin") {
         print STDERR "** ", $m->method, " ", $m->uri, " ==> ";
         $self->{progress_start} = time;
@@ -567,7 +539,7 @@ sub redirect_ok
     return 0 unless grep $_ eq $method,
       @{ $self->requests_redirectable || [] };
     
-    if ($new_request->url->scheme eq 'file') {
+    if ($new_request->uri->scheme eq 'file') {
       $response->header("Client-Warning" =>
 			"Can't redirect to a file:// URL!");
       return 0;
@@ -614,14 +586,20 @@ sub parse_head {
         my $old = $self->set_my_handler("response_header", $flag ? sub {
                my($response, $ua) = @_;
                require HTML::HeadParser;
-               $parser = HTML::HeadParser->new($response->{'_headers'});
+               $parser = HTML::HeadParser->new;
                $parser->xml_mode(1) if $response->content_is_xhtml;
                $parser->utf8_mode(1) if $] >= 5.008 && $HTML::Parser::VERSION >= 3.40;
 
                push(@{$response->{handlers}{response_data}}, {
 		   callback => sub {
 		       return unless $parser;
-		       $parser->parse($_[3]) or undef($parser);
+		       unless ($parser->parse($_[3])) {
+			   my $h = $parser->header;
+			   for my $f ($h->header_field_names) {
+			       $response->init_header($f, [$h->header($f)]);
+			   }
+			   undef($parser);
+		       }
 		   },
 	       });
 
@@ -843,7 +821,6 @@ sub mirror
 {
     my($self, $url, $file) = @_;
 
-    LWP::Debug::trace('()');
     my $request = HTTP::Request->new('GET', $url);
 
     if (-e $file) {
@@ -897,9 +874,9 @@ sub mirror
 sub _need_proxy {
     my($req, $ua) = @_;
     return if exists $req->{proxy};
-    my $proxy = $ua->{proxy}{$req->url->scheme} || return;
+    my $proxy = $ua->{proxy}{$req->uri->scheme} || return;
     if ($ua->{no_proxy}) {
-        if (my $host = eval { $req->url->host }) {
+        if (my $host = eval { $req->uri->host }) {
             for my $domain (@{$ua->{no_proxy}}) {
                 if ($host =~ /\Q$domain\E$/) {
                     return;
@@ -917,9 +894,15 @@ sub proxy
     my $key  = shift;
     return map $self->proxy($_, @_), @$key if ref $key;
 
+    Carp::croak("'$key' is not a valid URI scheme") unless $key =~ /^$URI::scheme_re\z/;
     my $old = $self->{'proxy'}{$key};
     if (@_) {
-        $self->{proxy}{$key} = shift;
+        my $url = shift;
+        if (defined($url) && length($url)) {
+            Carp::croak("Proxy must be specified as absolute URI; '$url' is not") unless $url =~ /^$URI::scheme_re:/;
+            Carp::croak("Bad http proxy specification '$url'") if $url =~ /^https?:/ && $url !~ m,^https?://\w,;
+        }
+        $self->{proxy}{$key} = $url;
         $self->set_my_handler("request_preprepare", \&_need_proxy)
     }
     return $old;
@@ -943,6 +926,8 @@ sub env_proxy {
 	    $self->no_proxy(split(/\s*,\s*/, $v));
 	}
 	else {
+            # Ignore random _proxy variables, allow only valid schemes
+            next unless $k =~ /^$URI::scheme_re\z/;
 	    $self->proxy($k, $v);
 	}
     }
@@ -1304,7 +1289,7 @@ proxy URL for a single access scheme.
 Do not proxy requests to the given domains.  Calling no_proxy without
 any domains clears the list of domains. Eg:
 
- $ua->no_proxy('localhost', 'no', ...);
+ $ua->no_proxy('localhost', 'example.com');
 
 =item $ua->env_proxy
 
@@ -1313,7 +1298,7 @@ specify proxies like this (sh-syntax):
 
   gopher_proxy=http://proxy.my.place/
   wais_proxy=http://proxy.my.place/
-  no_proxy="localhost,my.domain"
+  no_proxy="localhost,example.com"
   export gopher_proxy wais_proxy no_proxy
 
 csh or tcsh users should use the C<setenv> command to define these
@@ -1355,7 +1340,7 @@ handlers for this phase.
 =item request_prepare => sub { my($request, $ua, $h) = @_; ... }
 
 The handler is called before the request is sent and can modify the
-request any way it see hit.  This can for instance be used to add
+request any way it see fit.  This can for instance be used to add
 certain headers to specific requests.
 
 The method can assign a new request object to $_[0] to replace the
@@ -1433,7 +1418,7 @@ If $cb is passed as C<undef>, remove the handler.
 
 =item $ua->get_my_handler( $phase, %matchspec, $init )
 
-The retrieve the matching handler as hash ref.
+Will retrieve the matching handler as hash ref.
 
 If C<$init> is passed passed as a TRUE value, create and add the
 handler if it's not found.  If $init is a subroutine reference, then
@@ -1466,6 +1451,15 @@ arguments can be given to initialize the headers of the request. These
 are given as separate name/value pairs.  The return value is a
 response object.  See L<HTTP::Response> for a description of the
 interface it provides.
+
+There will still be a response object returned when LWP can't connect to the
+server specified in the URL or when other failures in protocol handlers occur.
+These internal responses use the standard HTTP status codes, so the responses
+can't be differentiated by testing the response status code alone.  Error
+responses that LWP generates internally will have the "Client-Warning" header
+set to the value "Internal response".  If you need to differentiate these
+internal responses from responses that a remote server actually generates, you
+need to test this header value.
 
 Fields names that start with ":" are special.  These will not
 initialize headers of the request but will determine how the response
@@ -1675,7 +1669,7 @@ specialized user agents based on C<LWP::UserAgent>.
 
 =head1 COPYRIGHT
 
-Copyright 1995-2008 Gisle Aas.
+Copyright 1995-2009 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

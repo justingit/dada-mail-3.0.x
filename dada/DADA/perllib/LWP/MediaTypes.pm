@@ -4,9 +4,8 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(guess_media_type media_suffix);
 @EXPORT_OK = qw(add_type add_encoding read_media_types);
-$VERSION = "5.810";
+$VERSION = "5.822";
 
-require LWP::Debug;
 use strict;
 
 # note: These hashes will also be filled with the entries found in
@@ -191,7 +190,6 @@ sub read_media_types
     for $typefile (@files) {
 	local(*TYPE);
 	open(TYPE, $typefile) || next;
-        LWP::Debug::debug("Reading media types from $typefile");
 	while (<TYPE>) {
 	    next if /^\s*#/; # comment line
 	    next if /^\s*$/; # blank line

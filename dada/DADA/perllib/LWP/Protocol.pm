@@ -2,7 +2,7 @@ package LWP::Protocol;
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = "5.820";
+$VERSION = "5.826";
 
 use strict;
 use Carp ();
@@ -97,21 +97,22 @@ sub collect
     my($ua, $max_size) = @{$self}{qw(ua max_size)};
 
     eval {
+	local $\; # protect the print below from surprises
         if (!defined($arg) || !$response->is_success) {
             $response->{default_add_content} = 1;
         }
         elsif (!ref($arg) && length($arg)) {
-            open(my $fh, ">", $arg) || die "Can't write to '$arg': $!";
+            open(my $fh, ">", $arg) or die "Can't write to '$arg': $!";
 	    binmode($fh);
             push(@{$response->{handlers}{response_data}}, {
                 callback => sub {
-                    print $fh $_[3] || die "Can't write to '$arg': $!";
+                    print $fh $_[3] or die "Can't write to '$arg': $!";
                     1;
                 },
             });
             push(@{$response->{handlers}{response_done}}, {
                 callback => sub {
-		    close($fh) || die "Can't write to '$arg': $!";
+		    close($fh) or die "Can't write to '$arg': $!";
 		    undef($fh);
 		},
 	    });
@@ -155,7 +156,6 @@ sub collect
             $content_size += length($$content);
             $ua->progress(($length ? ($content_size / $length) : "tick"), $response);
             if (defined($max_size) && $content_size > $max_size) {
-                LWP::Debug::debug("Aborting because size limit exceeded");
                 $response->push_header("Client-Aborted", "max_size");
                 last;
             }

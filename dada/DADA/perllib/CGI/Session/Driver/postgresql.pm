@@ -1,6 +1,6 @@
 package CGI::Session::Driver::postgresql;
 
-# $Id: postgresql.pm 394 2008-03-22 02:35:30Z markstos $
+# $Id: postgresql.pm 447 2008-11-01 03:46:08Z markstos $
 
 # CGI::Session::Driver::postgresql - PostgreSQL driver for CGI::Session
 #
@@ -15,7 +15,7 @@ use Carp "croak";
 use CGI::Session::Driver::DBI;
 use DBD::Pg qw(PG_BYTEA PG_TEXT);
 
-$CGI::Session::Driver::postgresql::VERSION = '4.30';
+$CGI::Session::Driver::postgresql::VERSION = '4.38';
 @CGI::Session::Driver::postgresql::ISA     = qw( CGI::Session::Driver::DBI );
 
 

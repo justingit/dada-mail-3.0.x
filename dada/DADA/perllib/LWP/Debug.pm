@@ -1,4 +1,4 @@
-package LWP::Debug;
+package LWP::Debug;  # legacy
 
 require Exporter;
 @ISA = qw(Exporter);
@@ -65,70 +65,46 @@ sub _log
 
 1;
 
-
 __END__
 
 =head1 NAME
 
-LWP::Debug - debug routines for the libwww-perl library
-
-=head1 SYNOPSIS
-
- use LWP::Debug qw(+ -conns);
-
- # Used internally in the library
- LWP::Debug::trace('send()');
- LWP::Debug::debug('url ok');
- LWP::Debug::conns("read $n bytes: $data");
+LWP::Debug - deprecated
 
 =head1 DESCRIPTION
 
-LWP::Debug provides tracing facilities. The trace(), debug() and
-conns() function are called within the library and they log
-information at increasing levels of detail. Which level of detail is
-actually printed is controlled with the C<level()> function.
+LWP::Debug used to provide tracing facilities, but these are not used
+by LWP any more.  The code in this module is kept around
+(undocumented) so that 3rd party code that happen to use the old
+interfaces continue to run.
 
-The following functions are available:
+One useful feature that LWP::Debug provided (in an imprecise and
+troublesome way) was network traffic monitoring.  The following
+section provide some hints about recommened replacements.
 
-=over 4
+=head2 Network traffic monitoring
 
-=item level(...)
+The best way to monitor the network traffic that LWP generates is to
+use an external TCP monitoring program.  The Wireshark program
+(L<http://www.wireshark.org/>) is higly recommended for this.
 
-The C<level()> function controls the level of detail being
-logged. Passing '+' or '-' indicates full and no logging
-respectively. Individual levels can switched on and of by passing the
-name of the level with a '+' or '-' prepended.  The levels are:
+Another approach it to use a debugging HTTP proxy server and make
+LWP direct all its traffic via this one.  Call C<< $ua->proxy >> to
+set it up and then just use LWP as before.
 
-  trace   : trace function calls
-  debug   : print debug messages
-  conns   : show all data transfered over the connections
+For less precise monitoring needs just setting up a few simple
+handlers might do.  The following example sets up handlers to dump the
+request and response objects that pass through LWP:
 
-The LWP::Debug module provide a special import() method that allows
-you to pass the level() arguments with initial use statement.  If a
-use argument start with '+' or '-' then it is passed to the level
-function, else the name is exported as usual.  The following two
-statements are thus equivalent (if you ignore that the second pollutes
-your namespace):
+  use LWP::UserAgent;
+  $ua = LWP::UserAgent->new;
+  $ua->default_header('Accept-Encoding' => scalar HTTP::Message::decodable());
 
-  use LWP::Debug qw(+);
-  use LWP::Debug qw(level); level('+');
+  $ua->add_handler("request_send",  sub { shift->dump; return });
+  $ua->add_handler("response_done", sub { shift->dump; return });
 
-=item trace($msg)
+  $ua->get("http://www.example.com");
 
-The C<trace()> function is used for tracing function
-calls. The package and calling subroutine name is
-printed along with the passed argument. This should
-be called at the start of every major function.
+=head1 SEE ALSO
 
-=item debug($msg)
-
-The C<debug()> function is used for high-granularity
-reporting of state in functions.
-
-=item conns($msg)
-
-The C<conns()> function is used to show data being
-transferred over the connections. This may generate
-considerable output.
-
-=back
+L<LWP::UserAgent>

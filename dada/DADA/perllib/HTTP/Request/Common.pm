@@ -13,7 +13,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = "5.817";
+$VERSION = "5.824";
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -102,14 +102,18 @@ sub _simple_req
     my($method, $url) = splice(@_, 0, 2);
     my $req = HTTP::Request->new($method => $url);
     my($k, $v);
+    my $content;
     while (($k,$v) = splice(@_, 0, 2)) {
 	if (lc($k) eq 'content') {
 	    $req->add_content($v);
-            $req->header("Content-Length", length(${$req->content_ref}));
+            $content++;
 	}
 	else {
 	    $req->push_header($k, $v);
 	}
+    }
+    if ($content && !defined($req->header("Content-Length"))) {
+        $req->header("Content-Length", length(${$req->content_ref}));
     }
     $req;
 }
@@ -363,7 +367,7 @@ returned in a separate statement.
 
 =item DELETE $url, Header => Value,...
 
-Like GET() but the method in the request is "DELETE".  This funciton
+Like GET() but the method in the request is "DELETE".  This function
 is not exported by default.
 
 =item POST $url

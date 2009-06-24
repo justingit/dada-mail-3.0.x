@@ -2,14 +2,13 @@ package LWP::RobotUA;
 
 require LWP::UserAgent;
 @ISA = qw(LWP::UserAgent);
-$VERSION = "5.813";
+$VERSION = "5.827";
 
 require WWW::RobotRules;
 require HTTP::Request;
 require HTTP::Response;
 
 use Carp ();
-use LWP::Debug ();
 use HTTP::Status ();
 use HTTP::Date qw(time2str);
 use strict;
@@ -114,18 +113,14 @@ sub simple_request
 {
     my($self, $request, $arg, $size) = @_;
 
-    LWP::Debug::trace('()');
-
     # Do we try to access a new server?
-    my $allowed = $self->{'rules'}->allowed($request->url);
+    my $allowed = $self->{'rules'}->allowed($request->uri);
 
     if ($allowed < 0) {
-	LWP::Debug::debug("Host is not visited before, or robots.txt expired.");
-	# fetch "robots.txt"
-	my $robot_url = $request->url->clone;
+	# Host is not visited before, or robots.txt expired; fetch "robots.txt"
+	my $robot_url = $request->uri->clone;
 	$robot_url->path("robots.txt");
 	$robot_url->query(undef);
-	LWP::Debug::debug("Requesting $robot_url");
 
 	# make access to robot.txt legal since this will be a recursive call
 	$self->{'rules'}->parse($robot_url, ""); 
@@ -136,22 +131,19 @@ sub simple_request
 	if ($robot_res->is_success) {
 	    my $c = $robot_res->content;
 	    if ($robot_res->content_type =~ m,^text/, && $c =~ /^\s*Disallow\s*:/mi) {
-		LWP::Debug::debug("Parsing robot rules");
 		$self->{'rules'}->parse($robot_url, $c, $fresh_until);
 	    }
 	    else {
-		LWP::Debug::debug("Ignoring robots.txt");
 		$self->{'rules'}->parse($robot_url, "", $fresh_until);
 	    }
 
 	}
 	else {
-	    LWP::Debug::debug("No robots.txt file found");
 	    $self->{'rules'}->parse($robot_url, "", $fresh_until);
 	}
 
 	# recalculate allowed...
-	$allowed = $self->{'rules'}->allowed($request->url);
+	$allowed = $self->{'rules'}->allowed($request->uri);
     }
 
     # Check rules
@@ -162,11 +154,10 @@ sub simple_request
 	return $res;
     }
 
-    my $netloc = eval { local $SIG{__DIE__}; $request->url->host_port; };
+    my $netloc = eval { local $SIG{__DIE__}; $request->uri->host_port; };
     my $wait = $self->host_wait($netloc);
 
     if ($wait) {
-	LWP::Debug::debug("Must wait $wait seconds");
 	if ($self->{'use_sleep'}) {
 	    sleep($wait)
 	}

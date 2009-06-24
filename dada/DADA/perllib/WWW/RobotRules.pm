@@ -1,6 +1,6 @@
 package WWW::RobotRules;
 
-$VERSION = "5.810";
+$VERSION = "5.824";
 sub Version { $VERSION; }
 
 use strict;
@@ -105,6 +105,9 @@ sub parse {
 		push(@anon_disallowed, $disallow);
 	    }
 	}
+        elsif (/^\s*Sitemap\s*:/i) {
+             # ignore
+        }
 	else {
 	    warn "RobotRules <$robot_txt_uri>: Unexpected line: $_\n" if $^W;
 	}
@@ -131,13 +134,9 @@ sub is_me {
     #  "User-Agent: ..." line that we were passed:
     
     if(index(lc($me), lc($ua_line)) >= 0) {
-      LWP::Debug::debug("\"$ua_line\" applies to \"$me\"")
-       if defined &LWP::Debug::debug;
       return 1;
     }
     else {
-      LWP::Debug::debug("\"$ua_line\" does not apply to \"$me\"")
-       if defined &LWP::Debug::debug;
       return '';
     }
 }

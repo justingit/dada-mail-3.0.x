@@ -3,7 +3,7 @@ package HTTP::Daemon;
 use strict;
 use vars qw($VERSION @ISA $PROTO $DEBUG);
 
-$VERSION = "5.818";
+$VERSION = "5.827";
 
 use IO::Socket qw(AF_INET INADDR_ANY inet_ntoa);
 @ISA=qw(IO::Socket::INET);
@@ -278,21 +278,6 @@ sub get_request
 	return;
 
     }
-    elsif ($ct && lc($ct) =~ m/^multipart\/\w+\s*;.*boundary\s*=\s*(\w+)/) {
-	# Handle multipart content type
-	my $boundary = "$CRLF--$1--$CRLF";
-	my $index;
-	while (1) {
-	    $index = index($buf, $boundary);
-	    last if $index >= 0;
-	    # end marker not yet found
-	    return unless $self->_need_more($buf, $timeout, $fdset);
-	}
-	$index += length($boundary);
-	$r->content(substr($buf, 0, $index));
-	substr($buf, 0, $index) = '';
-
-    }
     elsif ($len) {
 	# Plain body specified by "Content-Length"
 	my $missing = $len - length($buf);
@@ -310,6 +295,21 @@ sub get_request
 	    $r->content($buf);
 	    $buf='';
 	}
+    }
+    elsif ($ct && $ct =~ m/^multipart\/\w+\s*;.*boundary\s*=\s*("?)(\w+)\1/i) {
+	# Handle multipart content type
+	my $boundary = "$CRLF--$2--";
+	my $index;
+	while (1) {
+	    $index = index($buf, $boundary);
+	    last if $index >= 0;
+	    # end marker not yet found
+	    return unless $self->_need_more($buf, $timeout, $fdset);
+	}
+	$index += length($boundary);
+	$r->content(substr($buf, 0, $index));
+	substr($buf, 0, $index) = '';
+
     }
     ${*$self}{'httpd_rbuf'} = $buf;
 
@@ -626,7 +626,7 @@ HTTP::Daemon - a simple http server class
   print "Please contact me at: <URL:", $d->url, ">\n";
   while (my $c = $d->accept) {
       while (my $r = $c->get_request) {
-	  if ($r->method eq 'GET' and $r->url->path eq "/xyzzy") {
+	  if ($r->method eq 'GET' and $r->uri->path eq "/xyzzy") {
               # remember, this is *not* recommended practice :-)
 	      $c->send_file_response("/etc/passwd");
 	  }

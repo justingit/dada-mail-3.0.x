@@ -5,7 +5,6 @@ package LWP::Protocol::nntp;
 require LWP::Protocol;
 @ISA = qw(LWP::Protocol);
 
-require LWP::Debug;
 require HTTP::Response;
 require HTTP::Status;
 require Net::NNTP;
@@ -17,8 +16,6 @@ sub request
 {
     my($self, $request, $proxy, $arg, $size, $timeout) = @_;
 
-    LWP::Debug::trace('()');
-
     $size = 4096 unless $size;
 
     # Check for proxy
@@ -28,7 +25,7 @@ sub request
     }
 
     # Check that the scheme is as expected
-    my $url = $request->url;
+    my $url = $request->uri;
     my $scheme = $url->scheme;
     unless ($scheme eq 'news' || $scheme eq 'nntp') {
 	return HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
@@ -67,7 +64,6 @@ sub request
     my $response = HTTP::Response->new(&HTTP::Status::RC_OK, "OK");
 
     my $mess = $nntp->message;
-    LWP::Debug::debug($mess);
 
     # Try to extract server name from greeting message.
     # Don't know if this works well for a large class of servers, but
@@ -108,7 +104,6 @@ sub request
 	$response->message($nntp->message);
 	return $response;
     }
-    LWP::Debug::debug($nntp->message);
 
     # Parse headers
     my($key, $val);

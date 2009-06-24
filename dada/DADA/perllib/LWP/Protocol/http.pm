@@ -2,7 +2,6 @@ package LWP::Protocol::http;
 
 use strict;
 
-require LWP::Debug;
 require HTTP::Response;
 require HTTP::Status;
 require Net::HTTP;
@@ -116,7 +115,6 @@ sub hlist_remove {
 sub request
 {
     my($self, $request, $proxy, $arg, $size, $timeout) = @_;
-    LWP::Debug::trace('()');
 
     $size ||= 4096;
 
@@ -128,7 +126,7 @@ sub request
 				  "$method for 'http:' URLs";
     }
 
-    my $url = $request->url;
+    my $url = $request->uri;
     my($host, $port, $fullpath);
 
     # Check if we're proxy'ing
@@ -203,15 +201,16 @@ sub request
     #print "------\n$req_buf\n------\n";
 
     if (!$has_content || $write_wait || $has_content > 8*1024) {
-        do {
+      WRITE:
+        {
             # Since this just writes out the header block it should almost
             # always succeed to send the whole buffer in a single write call.
             my $n = $socket->syswrite($req_buf, length($req_buf));
             unless (defined $n) {
-                redo if $!{EINTR};
+                redo WRITE if $!{EINTR};
                 if ($!{EAGAIN}) {
                     select(undef, undef, undef, 0.1);
-                    redo;
+                    redo WRITE;
                 }
                 die "write failed: $!";
             }
@@ -221,8 +220,8 @@ sub request
             else {
                 select(undef, undef, undef, 0.5);
             }
+            redo WRITE if length $req_buf;
         }
-        while (length $req_buf);
     }
 
     my($code, $mess, @junk);
@@ -369,7 +368,7 @@ sub request
     if (my @te = $response->remove_header('Transfer-Encoding')) {
 	$response->push_header('Client-Transfer-Encoding', \@te);
     }
-    $response->push_header('Client-Response-Num', $socket->increment_response_count);
+    $response->push_header('Client-Response-Num', scalar $socket->increment_response_count);
 
     my $complete;
     $response = $self->collect($arg, $response, sub {
@@ -403,7 +402,6 @@ sub request
 	    if (($peer_http_version eq "1.1" && !$connection{close}) ||
 		$connection{"keep-alive"})
 	    {
-		LWP::Debug::debug("Keep the http connection to $host:$port");
 		$conn_cache->deposit("http", "$host:$port", $socket);
 	    }
 	}

@@ -4,7 +4,7 @@ use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = "5.818";
+$VERSION = "5.827";
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -311,6 +311,37 @@ sub content_type      {
 	$_ = lc($_);
     }
     wantarray ? @ct : $ct[0];
+}
+
+sub content_type_charset {
+    my $self = shift;
+    require HTTP::Headers::Util;
+    my $h = $self->{'content-type'};
+    $h = $h->[0] if ref($h);
+    $h = "" unless defined $h;
+    my @v = HTTP::Headers::Util::split_header_words($h);
+    if (@v) {
+	my($ct, undef, %ct_param) = @{$v[0]};
+	my $charset = $ct_param{charset};
+	if ($ct) {
+	    $ct = lc($ct);
+	    $ct =~ s/\s+//;
+	}
+	if ($charset) {
+	    $charset = uc($charset);
+	    $charset =~ s/^\s+//;  $charset =~ s/\s+\z//;
+	    undef($charset) if $charset eq "";
+	}
+	return $ct, $charset if wantarray;
+	return $charset;
+    }
+    return undef, undef if wantarray;
+    return undef;
+}
+
+sub content_is_text {
+    my $self = shift;
+    return $self->content_type =~ m,^text/,;
 }
 
 sub content_is_html {
@@ -635,6 +666,17 @@ string is returned.  This makes it safe to do the following:
      ...
   }
 
+=item $h->content_type_charset
+
+Returns the upper-cased charset specified in the Content-Type header.  In list
+context return the lower-cased bare content type followed by the upper-cased
+charset.  Both values will be C<undef> if not specified in the header.
+
+=item $h->content_is_text
+
+Returns TRUE if the Content-Type header field indicate that the
+content is textual.
+
 =item $h->content_is_html
 
 Returns TRUE if the Content-Type header field indicate that the
@@ -680,7 +722,7 @@ standard.>
 This header field is used in request messages and contains information
 about the user agent originating the request.  I<E.g.>:
 
-  $h->user_agent('Mozilla/1.2');
+  $h->user_agent('Mozilla/5.0 (compatible; MSIE 7.0; Windows NT 6.0)');
 
 =item $h->server
 

@@ -1,6 +1,6 @@
 package LWP;
 
-$VERSION = "5.820";
+$VERSION = "5.827";
 sub Version { $VERSION; }
 
 require 5.005;
@@ -543,7 +543,6 @@ The following modules provide various functions and definitions.
 
  LWP                -- This file.  Library version number and documentation.
  LWP::MediaTypes    -- MIME types configuration (text/html etc.)
- LWP::Debug         -- Debug logging module
  LWP::Simple        -- Simplified procedural interface for common functions
  HTTP::Status       -- HTTP status code (200 OK etc)
  HTTP::Date         -- Date parsing module for HTTP date formats
@@ -600,7 +599,7 @@ You might want to set it to C<URI::URL> for compatibility with old times.
 =head1 AUTHORS
 
 LWP was made possible by contributions from Adam Newby, Albert
-Dvornik, Alexandre Duret-Lutz, Andreas Gustafsson, Andreas König,
+Dvornik, Alexandre Duret-Lutz, Andreas Gustafsson, Andreas KÃ¶nig,
 Andrew Pimlott, Andy Lester, Ben Coleman, Benjamin Low, Ben Low, Ben
 Tilly, Blair Zajac, Bob Dalgleish, BooK, Brad Hughes, Brian
 J. Murrell, Brian McCauley, Charles C. Fu, Charles Lane, Chris Nandor,
@@ -614,7 +613,7 @@ Lopes, John Klar, Johnny Lee, Josh Kronengold, Josh Rai, Joshua
 Chamas, Joshua Hoblitt, Kartik Subbarao, Keiichiro Nagano, Ken
 Williams, KONISHI Katsuhiro, Lee T Lindley, Liam Quinn, Marc Hedlund,
 Marc Langheinrich, Mark D. Anderson, Marko Asplund, Mark Stosberg,
-Markus B Krüger, Markus Laker, Martijn Koster, Martin Thurn, Matthew
+Markus B KrÃ¼ger, Markus Laker, Martijn Koster, Martin Thurn, Matthew
 Eldridge, Matthew.van.Eerde, Matt Sergeant, Michael A. Chase, Michael
 Quaranta, Michael Thompson, Mike Schilli, Moshe Kaminsky, Nathan
 Torkington, Nicolai Langfeldt, Norton Allen, Olly Betts, Paul
@@ -623,7 +622,7 @@ Radoslaw Zielinski, Radu Greab, Randal L. Schwartz, Richard Chen,
 Robin Barker, Roy Fielding, Sander van Zoest, Sean M. Burke,
 shildreth, Slaven Rezic, Steve A Fink, Steve Hay, Steven Butler,
 Steve_Kilbane, Takanori Ugai, Thomas Lotterer, Tim Bunce, Tom Hughes,
-Tony Finch, Ville Skyttä, Ward Vandewege, William York, Yale Huang,
+Tony Finch, Ville SkyttÃ¤, Ward Vandewege, William York, Yale Huang,
 and Yitzchak Scott-Thoennes.
 
 LWP owes a lot in motivation, design, and code, to the libwww-perl
@@ -636,7 +635,7 @@ libwww-perl-0.40 library for details.
 
 =head1 COPYRIGHT
 
-  Copyright 1995-2008, Gisle Aas
+  Copyright 1995-2009, Gisle Aas
   Copyright 1995, Martijn Koster
 
 This library is free software; you can redistribute it and/or

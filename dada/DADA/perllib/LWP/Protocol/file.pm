@@ -16,8 +16,6 @@ sub request
 {
     my($self, $request, $proxy, $arg, $size) = @_;
 
-    LWP::Debug::trace('()');
-
     $size = 4096 unless defined $size and $size > 0;
 
     # check proxy
@@ -36,7 +34,7 @@ sub request
     }
 
     # check url
-    my $url = $request->url;
+    my $url = $request->uri;
 
     my $scheme = $url->scheme;
     if ($scheme ne 'file') {

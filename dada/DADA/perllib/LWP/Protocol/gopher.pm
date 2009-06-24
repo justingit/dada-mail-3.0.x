@@ -43,8 +43,6 @@ sub request
 {
     my($self, $request, $proxy, $arg, $size, $timeout) = @_;
 
-    LWP::Debug::trace('()');
-
     $size = 4096 unless $size;
 
     # check proxy
@@ -53,7 +51,7 @@ sub request
 				   'You can not proxy through the gopher');
     }
 
-    my $url = $request->url;
+    my $url = $request->uri;
     die "bad scheme" if $url->scheme ne 'gopher';
 
 
