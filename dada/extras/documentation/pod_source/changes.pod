@@ -14,6 +14,20 @@ http://github.com/justingit/dada-mail-3.0.x/tree/master
 
 This release focuses almost soley on bug fixes and ease of upgrading from previous versions, most especially, version 3.0.23 (the last stable release) and earlier versions. 
 
+=head2 CPAN Modules 3.0.4
+
+=over
+
+=item * LWP upgraded to: 5.827
+
+LWP is a key module distribution for the, "Send a Webpage" functionality of Dada Mail.
+
+=item * CGI::Sessoion upgrade to: 4.41
+
+CGI::Session handles all session management in Dada Mail. 
+
+=back
+
 
 =head2 Bug Fixes 3.0.4
 
