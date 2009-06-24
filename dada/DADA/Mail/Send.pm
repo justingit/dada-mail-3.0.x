@@ -823,6 +823,7 @@ sub mass_send {
     $self->saved_message($self->_massaged_for_archive(\%fields));
     
     
+	# This should really go away - isn't this handled by the templating system? 
 	$defaults{Body} =~ s/\[program_url\]/$DADA::Config::PROGRAM_URL/g; 	 
 
 	require DADA::MailingList::Subscribers;
@@ -1074,7 +1075,7 @@ sub mass_send {
 					if($DBI::VERSION >= 1.49){ 
 					    my %drivers = DBI->installed_drivers;
 					    foreach my $drh (values %drivers) {
-					        map { $_->{InactiveDestroy} = 1 } @{$_->{ChildHandles}};
+					        map { $drh->{InactiveDestroy} = 1 } @{$drh->{ChildHandles}};
 					    }
 					}
 				#}
