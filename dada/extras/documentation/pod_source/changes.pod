@@ -26,6 +26,28 @@ LWP is a key module distribution for the, "Send a Webpage" functionality of Dada
 
 CGI::Session handles all session management in Dada Mail. 
 
+=item * List-Utils Scalar-Utils
+
+The CPAN perl modules, Scalar::Util and List::Util are included with Dada Mail, but aren't actively used, so that any 
+server-wide installed versions will be used, instead. This is because the XS versions of these modules are needed for POP/SMTP 
+SSL connections and having these usable by default, breaks SSL connections. The directories, 
+
+ dada/DADA/perllib/List
+
+and, 
+
+ dada/DADA/perllib/Scalar
+
+have been renamed, 
+
+ dada/DADA/perllib/List-remove_to_install
+
+and, 
+
+ dada/DADA/perllib/Scalar-remove_to_install
+
+renaming them back to their original name will make them, "active"
+
 =back
 
 
