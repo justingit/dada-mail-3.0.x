@@ -50,7 +50,6 @@ renaming them back to their original name will make them, "active"
 
 =back
 
-
 =head2 Bug Fixes 3.0.4
 
 =over
