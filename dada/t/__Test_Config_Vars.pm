@@ -11,7 +11,7 @@ $TEST_SQL_PARAMS = {
 
 	MySQL => { 
 	
-		test_enabled     => 0, 
+		test_enabled     => 1, 
 	    database         => 'test',
 	    dbserver         => 'localhost', # may just be, "localhost"   	   
 	    port             => '3306',      # mysql: 3306, Postgres: 5432   	   
