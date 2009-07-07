@@ -31,11 +31,11 @@ C<enable_mass_subscribe> changes the behaviour of Dada Mail and when set to, C<0
 
 Do not fret. 
 
-You may enable the mass-subscription of subscribers in the list control panel as well, by logging into the list control panel with the Dada Mail Root Password and going to: I<Manage List Control Panel - Options> and checking the option labeled, I<Enable, "Subscribe Checked Subscribers" button in the, Manage Subscribers -> Add -> Verify> screen. 
+You may enable the mass-subscription of subscribers in the list control panel,  by logging into the list control panel with the Dada Mail Root Password and going to: I<Manage List Control Panel - Options> and checking the option labeled, I<Enable, "Subscribe Checked Subscribers" button in the, Manage Subscribers -> Add -> Verify> screen. 
 
 You may also enable this feature by default globally in the C<Config.pm> file, in the C<%LIST_SETUP_DEFAULTS> variable (look for the key, C<enable_mass_subscribe> and change its value to, C<1> 
 
-There's really good reasons why you should not mass-subscribe people for any reason, except for importing an already existing and I<verified> list. Other than that, it should never, ever be used and we'd like to hit that point home, as people, who shall remain nameless, can't possibly get a clue on why it could be a bad idea. 
+There are really good reasons why you should not mass-subscribe people except for importing an already existing and I<verified> list. Other than that, it should never, ever be used and we'd like to hit that point home, as people, who shall remain nameless, can't possibly get a clue on why it could be a bad idea. It's 2009, by the way. 
 
 We've written a very well thought out response and encourage you to follow good measures when adding people to your mailing list: 
 
