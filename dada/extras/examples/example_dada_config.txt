@@ -60,7 +60,7 @@ $BOUNCE_SCORECARD_DB_TYPE = 'SQL';
 
 );
 
-$LIST_IN_ORDER = 1; 
+$LIST_IN_ORDER = 1;
 
 
 =cut
