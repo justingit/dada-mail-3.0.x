@@ -3861,7 +3861,10 @@ sub add_email {
 		}
 		else { 
     
-			if($li->{enable_mass_subscribe} != 1){ 
+			if(
+				$li->{enable_mass_subscribe} != 1 && 
+				$type eq 'list'
+			){ 
 				die "Mass Subscribing via the List Control Panel has been disabled."; 
 			}
 			
