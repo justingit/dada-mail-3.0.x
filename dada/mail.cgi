@@ -1212,15 +1212,6 @@ sub sending_monitor {
                                     );
             
         }
-        
-         print(admin_template_header(      
-                  -Title      => "Monitor Your Mailing", 
-                  -List       => $list, 
-                  -Root_Login => $root_login,
-                  -Form       => 0, 
-                  
-              ));
-                  
             
             my (
 				$monitor_mailout_report, 
@@ -1237,20 +1228,28 @@ sub sending_monitor {
 					); 
 
             require DADA::Template::Widgets;  
-            print DADA::Template::Widgets::screen({-screen => 'sending_monitor_index_screen.tmpl', 
-                                                  -vars   => { 
-                                                  
-															screen                       => 'sending_monitor', 
-														    title                        => 'Monitor Your Mailings',
-														
-                                                            mailout_status               => $mailout_status,
-                                                            auto_pickup_dropped_mailings => $li->{auto_pickup_dropped_mailings}, 
-                                                            monitor_mailout_report       => $monitor_mailout_report, 
-                                                  
-                                                     },
-                                                 });
-    
-        print(admin_template_footer(-List => $list, -Form => 0, ));
+            my $scrn =  DADA::Template::Widgets::screen(
+				{
+					-screen => 'sending_monitor_index_screen.tmpl', 
+					-vars   => { 
+						screen                       => 'sending_monitor', 
+						title                        => 'Monitor Your Mailings',
+						mailout_status               => $mailout_status,
+						auto_pickup_dropped_mailings => $li->{auto_pickup_dropped_mailings}, 
+						monitor_mailout_report       => $monitor_mailout_report, 
+					},
+				}
+			);
+
+		print admin_template_header(      
+	                 -Title      => "Monitor Your Mailing", 
+	                 -List       => $list, 
+	                 -Root_Login => $root_login,
+	    );
+        print $scrn; 
+		print admin_template_footer(
+			-List => $list,
+		);
  
     }else{ 
      
@@ -1365,66 +1364,57 @@ sub sending_monitor {
 		  	$hourly_rate = commify(int(($status->{total_sent_out} / $status->{mailing_time}) * 60 * 60 + .5)); 		
       	  }
 
-
-          print(admin_template_header(      
-                  -Title      => "Monitor Your Mailing", 
-                  -List       => $list, 
-                  -Root_Login => $root_login,
-                  -Form       => 0, 
-                  
-                  ));
-                  
-                  
            require DADA::Template::Widgets;  
-           print   DADA::Template::Widgets::screen({-screen => 'sending_monitor_screen.tmpl', 
-                                                    -vars   => { 
-                                                  
-                                                      screen                       => 'sending_monitor', 
-													  title                        => 'Monitor Your Mailings',
-
-
-                                                      mailout_exists               => $mailout_exists, 
-                                                      message_id                   => DADA::App::Guts::strip($id),
-                                                      message_type                 => $q->param('type'),
-                                                      total_sent_out               => $status->{total_sent_out},
-                                                      total_sending_out_num        => $status->{total_sending_out_num},
-													  mailing_time                 => $status->{mailing_time}, 
-													  mailing_time_formatted       => $status->{mailing_time_formatted}, 
-                                                      hourly_rate                  => $hourly_rate, 
-													  percent_done                 => $status->{percent_done}, 
-                                                      status_bar_width             => int($status->{percent_done}) * 5,  
-                                                      negative_status_bar_width    => 500 - (int($status->{percent_done}) * 5), 
-                                                      need_to_send_out             => ( $status->{total_sending_out_num} - $status->{total_sent_out}), 
-                                                      time_since_last_sendout      => _formatted_runtime((time - int($status->{last_access}))), 
-                                                      its_killed                   => $its_killed, 
-                                                      header_subject               => $status->{email_fields}->{Subject}, 
-                                                      header_subject_label         => (length($status->{email_fields}->{Subject}) > 50) ? (substr($status->{email_fields}->{Subject}, 0, 49) . '...') : ($status->{email_fields}->{Subject}),  
-                                                      auto_pickup_dropped_mailings => $li->{auto_pickup_dropped_mailings}, 
-                                                      sending_done                 => ($status->{percent_done} < 100) ? 0 : 1, 
-                                                      refresh_after                => $refresh_after, 
-                                                      killed_it                    => $q->param('killed_it') ? 1 : 0, 
-                                                      sending_status               => $sending_status, 
-                                                      
-                                                      is_paused                    => $status->{paused} > 0 ? 1 : 0,  
-                                                      paused                       => $status->{paused}, 
-                                                      
-                                                      queue                        => $status->{queue},
-                                                      queued_mailout               => $status->{queued_mailout}, 
-                                                      queue_place                  => ($status->{queue_place} + 1), # adding one since humans like counting from, "1" 
-                                                      queue_total                  => ($status->{queue_total} + 1), # adding one since humans like counting from, "1"
-                                                      
-                                                      status_mailout_stale         => $status->{mailout_stale},
-                                                      
-                                                      MAILOUT_AT_ONCE_LIMIT        => $DADA::Config::MAILOUT_AT_ONCE_LIMIT, 
-                                                      
-                                                      will_restart_in              => $will_restart_in, 
-
-													  integrity_check              => $status->{integrity_check},
-                                                     
-                                                     },
-                                                 });
+           my $scrn =  DADA::Template::Widgets::screen(
+			{
+				-screen => 'sending_monitor_screen.tmpl', 
+				-vars   => { 
+					screen                       => 'sending_monitor', 
+					title                        => 'Monitor Your Mailings',
+					mailout_exists               => $mailout_exists, 
+					message_id                   => DADA::App::Guts::strip($id),
+					message_type                 => $q->param('type'),
+					total_sent_out               => $status->{total_sent_out},
+					total_sending_out_num        => $status->{total_sending_out_num},
+					mailing_time                 => $status->{mailing_time}, 
+					mailing_time_formatted       => $status->{mailing_time_formatted}, 
+					hourly_rate                  => $hourly_rate, 
+					percent_done                 => $status->{percent_done}, 
+					status_bar_width             => int($status->{percent_done}) * 5,  
+					negative_status_bar_width    => 500 - (int($status->{percent_done}) * 5), 
+					need_to_send_out             => ( $status->{total_sending_out_num} - $status->{total_sent_out}), 
+					time_since_last_sendout      => _formatted_runtime((time - int($status->{last_access}))), 
+					its_killed                   => $its_killed, 
+					header_subject               => $status->{email_fields}->{Subject}, 
+					header_subject_label         => (length($status->{email_fields}->{Subject}) > 50) ? (substr($status->{email_fields}->{Subject}, 0, 49) . '...') : ($status->{email_fields}->{Subject}),  
+					auto_pickup_dropped_mailings => $li->{auto_pickup_dropped_mailings}, 
+					sending_done                 => ($status->{percent_done} < 100) ? 0 : 1, 
+					refresh_after                => $refresh_after, 
+					killed_it                    => $q->param('killed_it') ? 1 : 0, 
+					sending_status               => $sending_status, 
+					is_paused                    => $status->{paused} > 0 ? 1 : 0,  
+					paused                       => $status->{paused}, 
+					queue                        => $status->{queue},
+					queued_mailout               => $status->{queued_mailout}, 
+					queue_place                  => ($status->{queue_place} + 1), # adding one since humans like counting from, "1" 
+					queue_total                  => ($status->{queue_total} + 1), # adding one since humans like counting from, "1"
+					status_mailout_stale         => $status->{mailout_stale},
+					MAILOUT_AT_ONCE_LIMIT        => $DADA::Config::MAILOUT_AT_ONCE_LIMIT, 
+					will_restart_in              => $will_restart_in, 
+					integrity_check              => $status->{integrity_check},
+					},
+				}
+			);
     
-            print(admin_template_footer(-List => $list, -Form => 0, ));
+         	print admin_template_header(      
+                 -Title      => "Monitor Your Mailing", 
+                 -List       => $list, 
+                 -Root_Login => $root_login,
+            );
+			print $scrn; 
+            print admin_template_footer(
+				-List => $list 
+			);
     }
 }
 
