@@ -11,13 +11,13 @@ $TEST_SQL_PARAMS = {
 
 	MySQL => { 
 	
-		test_enabled     => 0, 
+		test_enabled     => 1, 
 	    database         => 'test',
 	    dbserver         => 'localhost', # may just be, "localhost"   	   
 	    port             => '3306',      # mysql: 3306, Postgres: 5432   	   
 	    dbtype           => 'mysql',     # 'mysql' for 'MySQL', 'Pg' for 'PostgreSQL', and 'SQLite' for SQLite  
-	    user             => 'dada',          
-	    pass             => 'dada',
+	    user             => 'test',          
+	    pass             => '',
     
 	    subscriber_table => 'test_dada_subscribers',
 	    archives_table   => 'test_dada_archives', 
@@ -45,7 +45,7 @@ $TEST_SQL_PARAMS = {
 	}, 
 
 	SQLite => {
-		test_enabled     => 0, 
+		test_enabled     => 1, 
 	    dbtype           => 'SQLite',     # 'mysql' for 'MySQL', 'Pg' for 'PostgreSQL', and 'SQLite' for SQLite  
 		database         => 'test_dada',
 	    subscriber_table => 'test_dada_subscribers',
