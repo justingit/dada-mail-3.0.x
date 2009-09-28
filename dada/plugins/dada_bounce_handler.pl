@@ -4223,7 +4223,7 @@ going's on of the script:
          Subject: Simoni Creative - Dada Mail Mailing List Confirmation
          --
  ------------------------------------------------------------------------
- List: skazat_design_newsletter
+ List: dada_announce
  Email: de4est@centurytel.net    
  
  Last-Attempt-Date: Sun, 13 Apr 2003 20
