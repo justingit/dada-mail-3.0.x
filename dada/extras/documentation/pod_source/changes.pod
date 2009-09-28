@@ -2,6 +2,39 @@
 
 =head1 Dada Mail Changelog for version 3.x.x
 
+=head1 3.0.5
+
+=head2 Download
+
+See the Dada Mail download page: 
+
+L<http://dadamailproject.com/download>
+
+Huzzah! 
+
+=head2 Bug Fixes
+
+=over
+
+=item * BUGFIX: Plugin_URL needs to be used in both forms, not just one. - ID: 2848712
+
+http://sourceforge.net/tracker/?func=detail&aid=2848712&group_id=13002&atid=113002
+
+Hat tip:  http://sourceforge.net/users/billpowell/
+
+=item * BUGFIX:  2858688  	 3.0.4 - charset not set in multipart/* message *parts*
+
+https://sourceforge.net/tracker/?func=detail&aid=2858688&group_id=13002&atid=113002
+
+This fixes the problem for the, "Send a List Message" screen, both when create an HTML message (with no PlainText version) and when you create an HTML and PlainText Message.
+
+=item * BUGFIX: 3.0.4 - unable to mass-add black list addresses - ID: 2858250
+
+http://sourceforge.net/tracker/index.php?func=detail&aid=2858250&group_id=13002&atid=113002
+
+=back 
+
+
 =head1 3.0.4
 
 =head2 Download 3.0.4
